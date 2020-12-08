@@ -10,6 +10,7 @@
       <TargetName>SONIC</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
+      <pCCUsed>5060750::V5.06 update 6 (build 750)::ARMCC</pCCUsed>
       <uAC6>0</uAC6>
       <TargetOption>
         <TargetCommonOption>
@@ -398,6 +399,11 @@
               <FileName>chassis.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\User\User_Algorithm\chassis.c</FilePath>
+            </File>
+            <File>
+              <FileName>motion.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\User\User_Algorithm\motion.h</FilePath>
             </File>
           </Files>
         </Group>

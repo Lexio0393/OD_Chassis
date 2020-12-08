@@ -2,8 +2,10 @@
 #define _CHASSIS_H
 
 #include "stm32f4xx.h"
+#include "arm_math.h"
 
 #include "motion.h"
+#include "algorithm.h"
 
 //The Speed of chassis (use for controling)
 typedef struct
@@ -13,20 +15,20 @@ typedef struct
 	float omega;
 }ChassisVel_t;
 
-typedef struct
-{
-	float velTarget;
-	float velAct;
-}wheelVel_t;
+//typedef struct
+//{
+//	float velTarget;
+//	float velAct;
+//}wheelVel_t;
 
-//The velocity of each wheel (save the inverse kinematics solutions)
-typedef struct
-{
-	wheelVel_t rightFront;
-	wheelVel_t leftFront;
-	wheelVel_t leftRear;
-	wheelVel_t rightRear;
-}wheelState_t;
+////The velocity of each wheel (save the inverse kinematics solutions)
+//typedef struct
+//{
+//	wheelVel_t rightFront;
+//	wheelVel_t leftFront;
+//	wheelVel_t leftRear;
+//	wheelVel_t rightRear;
+//}wheelState_t;
 
 typedef struct
 {
@@ -63,18 +65,37 @@ typedef struct
  * | v3 |    | cos( -45) sin( -45) R |   | Om |     v3 =  Vx - Vy + Omega * R
  * | v4 |    | cos(  45) sin(  45) R |              v4 =  Vx + Vy + Omega * R
  */
- 
+
+//两种控制模式
 void OutputVel2Wheel_RigidC(float vel, float direction, float omega);    //Rigid Coordinate(Chassis Coordinate) 
 void OutputVel2Wheel_FixedC(float vel, float direction, float omega);    //Fixes Coordinate(World Coordinate)
 
-vector_t Transform2ChassisCoordinate(float vel, float direction, float postureAngle);
-float CalcWheelSpeed(float velX , float velY , float omega , float angleN, float postureAngle);
+//将世界坐标系下速度分解到车体坐标系
+Speed_t Transform2ChassisCoordinate(float vel, float direction, float postureAngle);
 
+//根据车体坐标系中的速度计算单个轮速
+float CalcWheelSpeed(float velX , float velY , float omega , float angleN);
+
+//将解算出的轮速发送到电机驱动
+void SendCmd2Driver(float rfVel, float lfVel, float lrVel, float rrVel);
+
+//车轮线速度与电机转速转换函数
+float RotateVel2Vel(int rpm);
+int Vel2RotateVel(float vel);
+
+//全局变量
 typedef struct
 {
 	ChassisVel_t chassisVel;
-	vector_t Speed_C;
+	Speed_t Speed_C;
 }gChassis_t;
 
 
 #endif
+
+
+//？？
+//void YawLock(float ExpectedYaw)			//偏航角锁定                          
+//{
+//	Underpan.Speed_a = UnderpanConfig.OmegaRatio * (ExpectedYaw - LocatorInfo.Yaw);
+//}
