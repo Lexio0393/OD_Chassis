@@ -1,6 +1,0 @@
---c99 --gnu -c --cpu Cortex-M4.fp -g -O0 --apcs=interwork --split_sections -I ..\Libraries\CMSIS -I ..\Libraries\CMSIS\startup -I ..\Libraries\dsplib\Include -I ..\Libraries\dsplib\Include -I ..\Libraries\STM32F4xx_StdPeriph_Driver\inc -I ..\Libraries -I ..\User\User_Driver\inc -I ..\User\User_App -I ..\User\User_Algorithm -I ..\User\User_Connector
--I.\RTE\_SONIC
--IE:\MDK5\ARM\PACK\Keil\STM32F4xx_DFP\2.14.0\Drivers\CMSIS\Device\ST\STM32F4xx\Include
--IE:\MDK5\ARM\CMSIS\Include
--D__UVISION_VERSION="528" -DSTM32F407xx -DUSE_STDPERIPH_DRIVER -DSTM32F40_41xxx -D__FPU_PRESENT="1" -DARM_MATH_CM4 -D__CC_ARM -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING
--o .\c620.o --omf_browse .\c620.crf --depend .\c620.d "..\User\User_App\C620.c"

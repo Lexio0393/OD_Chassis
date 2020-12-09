@@ -48,14 +48,14 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>.\</OutputDirectory>
+          <OutputDirectory>.\Objects\</OutputDirectory>
           <OutputName>STM32F407-SONIC</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
-          <ListingPath>.\</ListingPath>
+          <ListingPath>.\Listings\</ListingPath>
           <HexFormatSelection>1</HexFormatSelection>
           <Merge32K>0</Merge32K>
           <CreateBatchFile>0</CreateBatchFile>
@@ -381,6 +381,38 @@
       <Groups>
         <Group>
           <GroupName>User_Driver</GroupName>
+          <Files>
+            <File>
+              <FileName>bsp_main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_Driver\src\bsp_main.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_systick.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_Driver\src\bsp_systick.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_io.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_Driver\src\bsp_io.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_Driver\src\bsp_can.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_serial.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_Driver\src\bsp_serial.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_timer.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_Driver\src\bsp_timer.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>User_Algorithm</GroupName>
@@ -425,10 +457,22 @@
               <FileType>1</FileType>
               <FilePath>..\User\User_App\C620.c</FilePath>
             </File>
+            <File>
+              <FileName>pps.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_App\pps.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsp_09s.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_App\bsp_09s.c</FilePath>
+            </File>
+            <File>
+              <FileName>task.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\User\User_App\task.c</FilePath>
+            </File>
           </Files>
-        </Group>
-        <Group>
-          <GroupName>User_Connector</GroupName>
         </Group>
         <Group>
           <GroupName>CMSIS</GroupName>

@@ -39,10 +39,10 @@ typedef struct
 }wheel_t;
 
 /* 底盘基本参数 */
-#define WHEEL_DIAMETER  (140.0f)		//轮子直径（单位：mm）
+#define WHEEL_DIAMETER  (152.4f)		//轮子直径（单位：mm）
 #define DISX_OPS2CENTER (0.0f)			//定位系统X轴方向到中心距离
-#define DISY_OPS2CENTER (-253.6f)		//定位系统Y轴方向到中心距离
-#define MOVEBASE_RADIUS (430.63f)	  //底盘旋转半径
+#define DISY_OPS2CENTER (110.0f)		//定位系统Y轴方向到中心距离
+#define MOVEBASE_RADIUS (302.91f)	  //底盘旋转半径
 
 /* 按照平面坐标系象限数排序 */
 #define RIGHT_FRONT_NUM 			(1)				//右前轮ID号		ID_C620_01	0x201
@@ -90,7 +90,7 @@ typedef struct
 	Speed_t Speed_C;
 }gChassis_t;
 
-
+extern gChassis_t gChassis;
 #endif
 
 

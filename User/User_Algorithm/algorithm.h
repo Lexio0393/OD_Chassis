@@ -55,6 +55,10 @@ uint8_t ValueInRange_i(int32_t Value, int32_t Min, int32_t Max);
 uint8_t ValueInRange_f(float Value, float Min, float Max);
 float FlexibelValue(float dstVal, float srcVal, float step);
 
+float TurnInferiorArc(float targetAngle , float actualAngle);
+void AngleLimit(float *angle);
+float ReturnLimitAngle(float angle);
+
 /*
 //1¨¬?¡ê¨®?
 void TrackValue_Init(TrackValue_TypeDef *TrackValue, float Kp, float Deadband, float MaxOutput);

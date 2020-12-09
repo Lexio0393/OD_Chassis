@@ -1,24 +1,24 @@
 #include "chassis.h"
 
 #include "C620.h"
-//#include "pps.h"
+#include "pps.h"
 
 gChassis_t gChassis = {0};
 
-//void OutputVel2Wheel_FixedC(float vel, float direction, float omega)
-//{
-//	wheel_t wheel = {0.0f};
-//	Speed_t chassisVel = {0.0f};
-//	
-//	chassisVel = Transform2ChassisCoordinate(vel, direction, GetAngle());
-//	
-//	wheel.rf = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, RIGHT_FRONT_VERTICAL_ANG);
-//	wheel.lf = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, LEFT_FRONT_VERTICAL_ANG);
-//	wheel.lr = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, LEFT_REAR_VERTICAL_ANG);
-//	wheel.rr = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, RIGHT_REAR_VERTICAL_ANG);
-//	
-//	SendCmd2Driver(wheel.rf, wheel.lf, wheel.lr, wheel.rr);
-//}
+void OutputVel2Wheel_FixedC(float vel, float direction, float omega)
+{
+	wheel_t wheel = {0.0f};
+	Speed_t chassisVel = {0.0f};
+	
+	chassisVel = Transform2ChassisCoordinate(vel, direction, GetAngle());
+	
+	wheel.rf = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, RIGHT_FRONT_VERTICAL_ANG);
+	wheel.lf = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, LEFT_FRONT_VERTICAL_ANG);
+	wheel.lr = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, LEFT_REAR_VERTICAL_ANG);
+	wheel.rr = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, RIGHT_REAR_VERTICAL_ANG);
+	
+	SendCmd2Driver(wheel.rf, wheel.lf, wheel.lr, wheel.rr);
+}
 
 void OutputVel2Wheel_RigidC(float vel, float direction, float omega)
 {
@@ -41,6 +41,8 @@ void SendCmd2Driver(float rfVel, float lfVel, float lrVel, float rrVel)
 	VelCrl(LEFT_FRONT_ID, Vel2RotateVel(lfVel));
 	VelCrl(LEFT_REAR_ID, Vel2RotateVel(lrVel));
 	VelCrl(RIGHT_REAR_ID,Vel2RotateVel(rrVel));
+	
+	SetJoggingVel(CAN1, ID_C620_CTRL, C620);
 }
 	
 Speed_t Transform2ChassisCoordinate(float vel, float direction, float postureAngle)

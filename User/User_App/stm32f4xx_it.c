@@ -32,8 +32,13 @@
 
 /* User Includes, DO NOT add to .h file*/
 #include "main.h"
+#include "task.h"
+#include "bsp_09s.h"
+#include "pps.h"
+#include "C620.h"
 
-
+extern uint8_t g_Print_FinishFlag;
+extern uint8_t g_Display_usart[200];
 /** @addtogroup Template_Project
   * @{
   */
@@ -56,7 +61,7 @@
   */
 void USART1_IRQHandler(void)
 {
-	
+	Locator_SerialIsr();
 }
 
 /**
@@ -66,7 +71,7 @@ void USART1_IRQHandler(void)
   */
 void USART2_IRQHandler(void)
 {
-	
+	Remote_SerialIsr();
 }
 
 /**
@@ -76,7 +81,7 @@ void USART2_IRQHandler(void)
   */
 void USART3_IRQHandler(void)
 {
-	
+	Locator_SerialIsr();
 }
 
 
@@ -87,7 +92,19 @@ void USART3_IRQHandler(void)
   */
 void TIM2_IRQHandler(void)	//5ms Tasks
 {
-
+	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) 
+	{
+		static uint16_t time_print_tick = 0;
+		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
+		TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+		time_print_tick++;
+		if (time_print_tick >= 500 && g_Print_FinishFlag) 
+		{
+			time_print_tick = 0;
+			Serial_SendString(Serial6, (uint8_t*)g_Display_usart);
+		}
+		TIM2_5ms_Task();
+	}
 }
 
 /**
@@ -97,12 +114,20 @@ void TIM2_IRQHandler(void)	//5ms Tasks
   */
 void TIM5_IRQHandler(void)	//10ms Tasks
 {
-
+	if (TIM_GetITStatus(TIM5, TIM_IT_Update) != RESET) 
+	{
+		TIM_ClearITPendingBit(TIM5, TIM_IT_Update);
+		TIM_ClearFlag(TIM5, TIM_FLAG_Update);
+		TIM5_10ms_Task();
+	}
 }
 
 void CAN1_TX_IRQHandler(void)
 {
-
+	if (CAN_GetITStatus(CAN1,CAN_IT_TME) != RESET)
+	{
+		CAN_ClearITPendingBit(CAN1,CAN_IT_TME);
+	}
 }
 
 void CAN2_TX_IRQHandler(void)
@@ -112,7 +137,14 @@ void CAN2_TX_IRQHandler(void)
 
 void CAN1_RX0_IRQHandler(void)
 {
-	
+	CanRxMsg RxMsg;
+	if(CAN_GetITStatus(CAN1,CAN_IT_FMP0) != RESET)
+	{
+		CAN_ClearITPendingBit(CAN1,CAN_IT_FF0);
+		CAN_ClearFlag (CAN1, CAN_IT_FF0);
+ 		CAN_Receive (CAN1, CAN_FIFO0 ,&RxMsg);	
+		C620_GetFeedbackInfo(&RxMsg);
+	}
 }
 
 void CAN2_RX0_IRQHandler(void)

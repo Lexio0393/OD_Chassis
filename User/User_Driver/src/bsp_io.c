@@ -74,9 +74,9 @@ void BSP_LED_Init()
 //	RCC_AHB1PeriphClockCmd(Periph_GPIO_LED2, ENABLE);
 //	RCC_AHB1PeriphClockCmd(Periph_GPIO_LED3, ENABLE);
 	
-	GPIO_InitStruct.GPIO_Mode 	 = GPIO_Mode_OUT;
+	GPIO_InitStruct.GPIO_Mode  = GPIO_Mode_OUT;
 	GPIO_InitStruct.GPIO_OType = GPIO_OType_PP;
-  GPIO_InitStruct.GPIO_PuPd   = GPIO_PuPd_UP;
+  GPIO_InitStruct.GPIO_PuPd  = GPIO_PuPd_UP;
 	GPIO_InitStruct.GPIO_Speed = GPIO_High_Speed;
 	
 	GPIO_InitStruct.GPIO_Pin = GPIO_Pin_LED0;
@@ -111,25 +111,8 @@ void BSP_Beep_Init(void)
 	Beep_Off();
 }
 
-void BSP_Valve_Init(void)
-{
-	GPIO_InitTypeDef  GPIO_InitStructure;
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_Push;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
-  GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-  GPIO_Init(GPIO_Port_Push, &GPIO_InitStructure);
-	
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_Pull;
-	GPIO_Init(GPIO_Port_Pull, &GPIO_InitStructure);
-	
-	GPIO_ResetBits(GPIO_Port_Push, GPIO_Pin_Push);
-	GPIO_ResetBits(GPIO_Port_Pull, GPIO_Pin_Pull);
-}
 void BSP_IO_Init(void)
 {
 	BSP_LED_Init();
 	BSP_Beep_Init();
-	BSP_Valve_Init();
 }

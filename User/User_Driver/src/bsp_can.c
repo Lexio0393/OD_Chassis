@@ -1,11 +1,6 @@
 #include "bsp_can.h"
 #include "misc.h"
 
-//#include "stm32f4xx_gpio.h"
-//#include "String.h"
-//#include "bsp_io.h"
-//#include "bsp_serial.h"
-
 void CAN_Config(CAN_TypeDef *CANx,
 				uint32_t CAN_BaudRate,
 				GPIO_TypeDef *GPIOx,
@@ -64,15 +59,13 @@ void CAN_Config(CAN_TypeDef *CANx,
 	{
 		GPIO_AF_CANx = GPIO_AF_CAN1;
 		CAN_FilterInitStructure.CAN_FilterNumber = 0; //Filter 0
-		//NVIC_InitStructure.NVIC_IRQChannel = CAN1_RX0_IRQn;
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
 		break;
 	}
 	case CAN2_BASE:
 	{
 		GPIO_AF_CANx = GPIO_AF_CAN2;
-		CAN_FilterInitStructure.CAN_FilterNumber = 14; //Filter 1		//´ýÐÞ¸Ä
-		//NVIC_InitStructure.NVIC_IRQChannel = CAN2_RX0_IRQn;
+		CAN_FilterInitStructure.CAN_FilterNumber = 14; 
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN1, ENABLE);
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_CAN2, ENABLE);
 		break;

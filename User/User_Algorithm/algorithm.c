@@ -78,3 +78,63 @@ float FlexibelValue(float dstVal, float srcVal, float step)
 			RealVal = srcVal - step;
 	return RealVal;
 }
+
+float TurnInferiorArc(float targetAngle , float actualAngle)
+{
+	if(targetAngle - actualAngle > 180.0f)
+	{
+		return (targetAngle - 360.0f);
+	}
+	else if(targetAngle - actualAngle < -180.0f)
+	{
+		return (targetAngle + 360.0f);
+	}
+	else
+	{
+		return targetAngle;
+	}	
+}
+
+void AngleLimit(float *angle)
+{
+	static uint8_t recursiveTimes = 0;
+	recursiveTimes++;
+	
+	if(recursiveTimes < 100)
+	{
+		if(*angle > 180.0f)
+		{
+			*angle -= 360.0f;
+			AngleLimit(angle);
+		}
+		else if(*angle < -180.0f)
+		{
+			*angle += 360.0f;
+			AngleLimit(angle);
+		}
+	}
+	
+	recursiveTimes--;
+}
+
+float ReturnLimitAngle(float angle)
+{
+	static uint8_t recursiveTimes = 0;
+	recursiveTimes++;
+
+	if(recursiveTimes<100)
+	{
+		if(angle > 180.0f)
+		{
+			angle = ReturnLimitAngle(angle - 360.0f);
+		}
+		else if(angle < -180.0f)
+		{
+			angle = ReturnLimitAngle(angle + 360.0f);
+		}
+	}
+	
+	recursiveTimes--;
+	
+	return angle;	
+}
