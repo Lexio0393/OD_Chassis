@@ -11,8 +11,18 @@
 volatile RemoteStatus_t RemoteStatus = RemoteStatus_FixedCoordinate;
 volatile ChassisStatus_t ChassisStatus = ChassisStatus_LostForce;
 
-const float Chassis_VelRatio = 3.2721054f;
-const float	Chassis_OmeRatio = 0.0107458f;
+//M3508极限转速为8192rpm,则最大轮速为8192*Pi*D/60/M3508_REDUCTION_RATIO = 3404.07981f mm/s
+//电机转速均为±8192时, 前进方向轮速投影为3404.07981 * Sqrt(2) = 4814.098583mm/s
+//摇杆值范围为-683*SQRT_2~0~683*SQRT_2  速度系数为MaxVelocity/(683*SQRT_2)
+
+//旋转线速度为3404.07981f mm/s	MaxVelocity/MOVEBASE_RADIUS (302.91f) = 11.2379248°/s
+//摇杆值范围为-683~0~683			11.2379248/683 = 0.01645377°/s
+
+//RockerValue * Chassis_Ratio所得值的单位为mm/s或°，范围为(-4814 ~ 4814)(-180° ~ 180°)
+//该系数负责将摇杆值转化为车速或旋转角度
+
+const float Chassis_VelRatio = 4.9840115f;
+const float	Chassis_OmeRatio = 0.0164538f;
 
 float RockerValue_LX = 0.000f, RockerValue_LY = 0.000f;
 float RockerValue_RX = 0.000f, RockerValue_RY = 0.000f;
