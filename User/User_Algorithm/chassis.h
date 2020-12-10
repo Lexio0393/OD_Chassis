@@ -88,6 +88,7 @@ typedef struct
 {
 	ChassisVel_t chassisVel;
 	Speed_t Speed_C;
+	wheel_t wheelState;
 }gChassis_t;
 
 extern gChassis_t gChassis;

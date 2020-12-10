@@ -17,6 +17,8 @@ void OutputVel2Wheel_FixedC(float vel, float direction, float omega)
 	wheel.lr = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, LEFT_REAR_VERTICAL_ANG);
 	wheel.rr = CalcWheelSpeed(chassisVel.x, chassisVel.y, omega, RIGHT_REAR_VERTICAL_ANG);
 	
+	gChassis.wheelState = wheel;
+	
 	SendCmd2Driver(wheel.rf, wheel.lf, wheel.lr, wheel.rr);
 }
 
@@ -37,10 +39,10 @@ void OutputVel2Wheel_RigidC(float vel, float direction, float omega)
 
 void SendCmd2Driver(float rfVel, float lfVel, float lrVel, float rrVel)
 {
-	VelCrl(RIGHT_FRONT_ID, Vel2RotateVel(rfVel));
-	VelCrl(LEFT_FRONT_ID, Vel2RotateVel(lfVel));
-	VelCrl(LEFT_REAR_ID, Vel2RotateVel(lrVel));
-	VelCrl(RIGHT_REAR_ID,Vel2RotateVel(rrVel));
+	VelCrl(RIGHT_FRONT_ID, -Vel2RotateVel(rfVel));
+	VelCrl(LEFT_FRONT_ID, -Vel2RotateVel(lfVel));
+	VelCrl(LEFT_REAR_ID, -Vel2RotateVel(lrVel));
+	VelCrl(RIGHT_REAR_ID, -Vel2RotateVel(rrVel));
 	
 	SetJoggingVel(CAN1, ID_C620_CTRL, C620);
 }

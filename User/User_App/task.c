@@ -18,7 +18,7 @@ volatile ChassisStatus_t ChassisStatus = ChassisStatus_LostForce;
 //旋转线速度为3404.07981f mm/s	MaxVelocity/MOVEBASE_RADIUS (302.91f) = 11.2379248°/s
 //摇杆值范围为-683~0~683			11.2379248/683 = 0.01645377°/s
 
-//RockerValue * Chassis_Ratio所得值的单位为mm/s或°，范围为(-4814 ~ 4814)(-180° ~ 180°)
+//RockerValue * Chassis_Ratio所得值的单位为mm/s或°，范围为(-4814 ~ 4814)(-180°/s ~ 180°/s)
 //该系数负责将摇杆值转化为车速或旋转角度
 
 const float Chassis_VelRatio = 4.9840115f;
@@ -139,7 +139,7 @@ void Task_RemoteControl(void)
 			RockerValue_RY = Remote_GetChanalValue(Remote_RY);
 			RockerValue_LX = Remote_GetChanalValue(Remote_LX);
 			
-			gChassis.chassisVel.omega = RockerValue_LX * Chassis_OmeRatio * 2;
+			gChassis.chassisVel.omega = RockerValue_LX * Chassis_OmeRatio / 3;  //3为限速，可去
 		
 			arm_sqrt_f32(RockerValue_RX * RockerValue_RX + RockerValue_RY * RockerValue_RY, &Vel_Vector);
 			Vel_ControlValue = Vel_Vector * Chassis_VelRatio	/ 3;		//3为限速，可去
@@ -171,12 +171,12 @@ void Task_RemoteControl(void)
 		
 		case Remote_SW2:
 			
-			RemoteStatus = RemoteStatus_FixedCoordinate;
+			RemoteStatus = RemoteStatus_RigidCoordinate;
 			RockerValue_RX = -Remote_GetChanalValue(Remote_RX);		
 			RockerValue_RY = Remote_GetChanalValue(Remote_RY);
 			RockerValue_LX = Remote_GetChanalValue(Remote_LX);
 			
-			gChassis.chassisVel.omega = RockerValue_LX * Chassis_OmeRatio * 2;
+			gChassis.chassisVel.omega = RockerValue_LX * Chassis_OmeRatio / 3;	//3为限速，可去
 		
 			arm_sqrt_f32(RockerValue_RX * RockerValue_RX + RockerValue_RY * RockerValue_RY, &Vel_Vector);
 			Vel_ControlValue = Vel_Vector * Chassis_VelRatio	/ 3;		//3为限速，可去
