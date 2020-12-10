@@ -1,11 +1,13 @@
 #include "main.h"
+uint8_t g_Display_usart[500];
+uint8_t g_Print_FinishFlag = 0;
 
 int main(void)
 {
 
 	uint8_t i;
 	
-//	ConfigTask();
+	Config_Task();
 	
 	while (1)
 	{

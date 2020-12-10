@@ -8,6 +8,12 @@ typedef struct
 	float direction;
 }vector_t;
 
+typedef struct
+{
+	float x;
+	float y;
+}Speed_t;
+
 /* 位置点的结构体 单位mm */
 typedef struct
 {
