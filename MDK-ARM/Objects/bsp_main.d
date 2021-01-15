@@ -39,4 +39,5 @@
 .\objects\bsp_main.o: ..\User\User_Driver\inc\bsp_io.h
 .\objects\bsp_main.o: ..\User\User_Driver\inc\bsp_can.h
 .\objects\bsp_main.o: ..\User\User_Driver\inc\bsp_serial.h
+.\objects\bsp_main.o: ..\User\User_Driver\inc\bsp_dma.h
 .\objects\bsp_main.o: ..\User\User_Driver\inc\bsp_timer.h

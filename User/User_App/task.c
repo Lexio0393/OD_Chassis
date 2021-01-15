@@ -6,7 +6,8 @@
 
 #include "C620.h"
 #include "pps.h"
-#include "bsp_09s.h"
+//#include "bsp_09s.h"
+#include "bsp_dt7.h"
 
 volatile RemoteStatus_t RemoteStatus = RemoteStatus_FixedCoordinate;
 volatile ChassisStatus_t ChassisStatus = ChassisStatus_LostForce;
@@ -82,7 +83,7 @@ void TIM5_10ms_Task(void)
 void Task_GetChassisStatus(void)
 {
 	/* 底盘控制模式选择 */
-	switch((uint8_t)Remote_GetChanalValue(Remote_B))
+	switch((uint8_t)Remote_GetChanalValue(Remote_S1))
 	{
 		case Remote_SW0:
 			ChassisStatus = ChassisStatus_Remote;
@@ -128,7 +129,7 @@ void Task_GetChassisStatus(void)
 
 void Task_RemoteControl(void)
 {	
-	switch((uint8_t)Remote_GetChanalValue(Remote_F))
+	switch((uint8_t)Remote_GetChanalValue(Remote_S2))
 	{
 	
 		case Remote_SW0:

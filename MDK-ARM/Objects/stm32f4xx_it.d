@@ -41,9 +41,10 @@
 .\objects\stm32f4xx_it.o: ..\User\User_Driver\inc\bsp_io.h
 .\objects\stm32f4xx_it.o: ..\User\User_Driver\inc\bsp_can.h
 .\objects\stm32f4xx_it.o: ..\User\User_Driver\inc\bsp_serial.h
+.\objects\stm32f4xx_it.o: ..\User\User_Driver\inc\bsp_dma.h
 .\objects\stm32f4xx_it.o: ..\User\User_Driver\inc\bsp_timer.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\pps.h
-.\objects\stm32f4xx_it.o: ..\User\User_App\bsp_09s.h
+.\objects\stm32f4xx_it.o: ..\User\User_App\bsp_dt7.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\task.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\C620.h
 .\objects\stm32f4xx_it.o: ..\User\User_Algorithm\pid.h

@@ -4,9 +4,10 @@
 #include "stm32f4xx.h"
 
 /* ----------------------- RC Channel Definition---------------------------- */
-#define RC_CH_VALUE_MIN    ((uint16_t)364 )
-#define RC_CH_VALUE_OFFSET ((uint16_t)1024)
-#define RC_CH_VALUE_MAX    ((uint16_t)1684)
+#define RC_CH_VALUE_MIN      ((uint16_t)364 )
+#define RC_CH_VALUE_OFFSET   ((uint16_t)1024)
+#define RC_CH_VALUE_MAX      ((uint16_t)1684)
+#define RC_CH_VALUE_DEADBAND ((uint16_t)10)
 /* ----------------------- RC Switch Definition----------------------------- */
 #define RC_SW_UP   ((uint16_t)1)
 #define RC_SW_MID  ((uint16_t)3)
@@ -52,7 +53,29 @@ typedef struct
 	
 }RC_Ctl_t;
 
+typedef enum
+{
+	  Remote_RX = (uint8_t)0x00,
+    Remote_RY = (uint8_t)0x01,
+    Remote_LX = (uint8_t)0x02,
+	  Remote_LY = (uint8_t)0x03,
+	
+		Remote_S1 = (uint8_t)0x04,
+    Remote_S2 = (uint8_t)0x05,
+}RemoteChanel_TypeDef;
+
+typedef enum
+{
+    Remote_SW0   = (int16_t)0,
+    Remote_SW1   = (int16_t)1,
+    Remote_SW2   = (int16_t)2,
+    Remote_SWErr = (int16_t)3,
+}Remote_SwitchStatus_TypeDef;
+
 void RC_Init(void);
 void DJI_DT7_SerialIsr(void);
 void RemoteDataProcess(uint8_t *pData);
+
+int16_t Remote_GetChanalValue(RemoteChanel_TypeDef RemoteChanel);
+uint16_t Remote_GetChanalPulse(uint8_t Chanel);
 #endif

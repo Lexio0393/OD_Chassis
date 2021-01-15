@@ -74,7 +74,7 @@ void BSP_Serial1_Init(void)
 void BSP_Serial2_Init(void)
 {
 	USART_InitTypeDef USART_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+//	NVIC_InitTypeDef NVIC_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	/* Enable GPIO and USART clock */
@@ -87,9 +87,9 @@ void BSP_Serial2_Init(void)
 
 	/* Configure USART Tx and Rx as alternate function push-pull */
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;
 	GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;
-	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
+	GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;
 
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_Serial2_Tx;
 	GPIO_Init(GPIO_Port_Serial2_Tx, &GPIO_InitStructure);
@@ -115,30 +115,17 @@ void BSP_Serial2_Init(void)
 		- Hardware flow control disabled (RTS and CTS signals)
 		- Receive and transmit enabled
 	*/
+	USART_DeInit(USART2);
 	USART_InitStructure.USART_BaudRate = 100000;
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-	USART_InitStructure.USART_StopBits = USART_StopBits_2;
+	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	USART_InitStructure.USART_Parity = USART_Parity_Even;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
 	USART_InitStructure.USART_Mode = USART_Mode_Rx;
-	USART_Init(USART2, &USART_InitStructure);	//¸ù¾ÝÒ£¿ØÆ÷´ýÐÞ¸Ä
-//		USART_InitStructure.USART_BaudRate = 115200;
-//		USART_InitStructure.USART_WordLength = USART_WordLength_8b;
-//		USART_InitStructure.USART_StopBits = USART_StopBits_1;
-//		USART_InitStructure.USART_Parity = USART_Parity_No;
-//		USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-//		USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
-//		USART_Init(USART2, &USART_InitStructure);
-	
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);
+	USART_Init(USART2, &USART_InitStructure);
 
-	/* Enable the USART2 Interrupt */
-	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
-
+	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);
+	USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
 	/* Enable USART */
 	USART_Cmd(USART2, ENABLE);
 }

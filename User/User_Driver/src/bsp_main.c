@@ -16,5 +16,6 @@ void BSP_Init(void)
 	BSP_CAN_Init();
 	
 	BSP_Serial_Init();
+	BSP_DMA_USART2RX_Init();
 	BSP_Timer_Init();
 }

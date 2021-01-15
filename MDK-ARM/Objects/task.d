@@ -40,6 +40,7 @@
 .\objects\task.o: ..\User\User_Driver\inc\bsp_io.h
 .\objects\task.o: ..\User\User_Driver\inc\bsp_can.h
 .\objects\task.o: ..\User\User_Driver\inc\bsp_serial.h
+.\objects\task.o: ..\User\User_Driver\inc\bsp_dma.h
 .\objects\task.o: ..\User\User_Driver\inc\bsp_timer.h
 .\objects\task.o: ..\User\User_Algorithm\chassis.h
 .\objects\task.o: ..\Libraries\dsplib\Include\arm_math.h
@@ -52,4 +53,4 @@
 .\objects\task.o: ..\User\User_App\C620.h
 .\objects\task.o: ..\User\User_Algorithm\pid.h
 .\objects\task.o: ..\User\User_App\pps.h
-.\objects\task.o: ..\User\User_App\bsp_09s.h
+.\objects\task.o: ..\User\User_App\bsp_dt7.h

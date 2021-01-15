@@ -40,7 +40,8 @@
 .\objects\main.o: ..\User\User_Driver\inc\bsp_io.h
 .\objects\main.o: ..\User\User_Driver\inc\bsp_can.h
 .\objects\main.o: ..\User\User_Driver\inc\bsp_serial.h
+.\objects\main.o: ..\User\User_Driver\inc\bsp_dma.h
 .\objects\main.o: ..\User\User_Driver\inc\bsp_timer.h
 .\objects\main.o: ..\User\User_App\pps.h
-.\objects\main.o: ..\User\User_App\bsp_09s.h
+.\objects\main.o: ..\User\User_App\bsp_dt7.h
 .\objects\main.o: ..\User\User_App\task.h

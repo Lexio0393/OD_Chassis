@@ -7,6 +7,7 @@
 #include "bsp_io.h"
 #include "bsp_can.h"
 #include "bsp_serial.h"
+#include "bsp_dma.h"
 #include "bsp_timer.h"
 
 void BSP_Init(void);

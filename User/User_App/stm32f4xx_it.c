@@ -33,7 +33,7 @@
 /* User Includes, DO NOT add to .h file*/
 #include "main.h"
 #include "task.h"
-#include "bsp_09s.h"
+#include "bsp_dt7.h"
 #include "pps.h"
 #include "C620.h"
 
@@ -71,7 +71,7 @@ void USART1_IRQHandler(void)
   */
 void USART2_IRQHandler(void)
 {
-	Remote_SerialIsr();
+	DJI_DT7_SerialIsr();
 }
 
 /**
