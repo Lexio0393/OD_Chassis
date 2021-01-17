@@ -48,45 +48,49 @@ void DJI_DT7_SerialIsr(void)
 {
 	if(USART_GetITStatus(USART2, USART_IT_IDLE) != RESET)
 	{
-		//clear the idle pending flag
-		(void)USART2->SR;
-		(void)USART2->DR;
-		
 		//Target is Memory0
 		if(DMA_GetCurrentMemoryTarget(DMA1_Stream5) == 0)
 		{
 			DMA_Cmd(DMA1_Stream5, DISABLE);
+
 			DMA1_Stream5->NDTR = (uint16_t)RC_FRAME_LENGTH; //relocate the dma memory pointer to the beginning position
 			DMA1_Stream5->CR |= (uint32_t)(DMA_SxCR_CT); 		//enable the current selected memory is Memory 1
-			DMA_Cmd(DMA1_Stream5, ENABLE);
 			
-			if(DMA_GetCurrDataCounter(DMA1_Stream5) == 0) //ensure received complete frame data.
+			if(DMA_GetCurrDataCounter(DMA1_Stream5) == RC_FRAME_LENGTH) //ensure received complete frame data.
 			{
 				RemoteDataProcess((uint8_t*)sbus_rx_buffer[0]);
 			}
+		
+			DMA_Cmd(DMA1_Stream5, ENABLE);
 		}
 		//Target is Memory1
 		else
 		{
 			DMA_Cmd(DMA1_Stream5, DISABLE);
-			DMA1_Stream5->NDTR = (uint16_t)RC_FRAME_LENGTH; //relocate the dma memory pointer to the beginning position
-			DMA1_Stream5->CR &= ~(uint32_t)(DMA_SxCR_CT); //enable the current selected memory is Memory 0
-			DMA_Cmd(DMA1_Stream5, ENABLE);
 			
-			if(DMA_GetCurrDataCounter(DMA1_Stream5) == 0)
+			DMA1_Stream5->NDTR = (uint16_t)RC_FRAME_LENGTH; //relocate the dma memory pointer to the beginning position
+			DMA1_Stream5->CR &= ~(uint32_t)(DMA_SxCR_CT); //enable the current selected memory is Memory 0			
+			
+			if(DMA_GetCurrDataCounter(DMA1_Stream5) == RC_FRAME_LENGTH)
 			{
 				RemoteDataProcess((uint8_t*)sbus_rx_buffer[1]);
 			}
+			
+			DMA_Cmd(DMA1_Stream5, ENABLE);
 		}
+		
+		//clear the idle pending flag
+		(void)USART2->SR;
+		(void)USART2->DR;
 	} 
 }
 
-void RemoteDataProcess(uint8_t *pData)
+static void RemoteDataProcess(uint8_t *pData)
 {
-//  if(pData == NULL)
-//  {
-//		return;
-//  }
+  if(pData == NULL)
+  {
+		return;
+  }
 
   RC_CtrlData.rc.ch0 = ((int16_t)pData[0] | ((int16_t)pData[1] << 8)) & 0x07FF;
   RC_CtrlData.rc.ch1 = (((int16_t)pData[1] >> 3) | ((int16_t)pData[2] << 5))& 0x07FF;

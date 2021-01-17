@@ -74,7 +74,7 @@ void BSP_Serial1_Init(void)
 void BSP_Serial2_Init(void)
 {
 	USART_InitTypeDef USART_InitStructure;
-//	NVIC_InitTypeDef NVIC_InitStructure;
+	NVIC_InitTypeDef NVIC_InitStructure;
 	GPIO_InitTypeDef GPIO_InitStructure;
 
 	/* Enable GPIO and USART clock */
@@ -124,8 +124,16 @@ void BSP_Serial2_Init(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx;
 	USART_Init(USART2, &USART_InitStructure);
 
-	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);
 	USART_ITConfig(USART2, USART_IT_IDLE, ENABLE);
+	/* Enable the USART1 Interrupt */
+	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
+	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+	NVIC_Init(&NVIC_InitStructure);
+	
+	USART_DMACmd(USART2,USART_DMAReq_Tx,ENABLE);
+
 	/* Enable USART */
 	USART_Cmd(USART2, ENABLE);
 }

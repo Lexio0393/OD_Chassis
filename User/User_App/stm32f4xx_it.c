@@ -39,6 +39,9 @@
 
 extern uint8_t g_Print_FinishFlag;
 extern uint8_t g_Display_usart[200];
+
+extern volatile unsigned char sbus_rx_buffer[2][RC_FRAME_LENGTH]; //double sbusrx buffer to save data
+
 /** @addtogroup Template_Project
   * @{
   */
