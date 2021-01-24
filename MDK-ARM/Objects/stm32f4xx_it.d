@@ -45,6 +45,7 @@
 .\objects\stm32f4xx_it.o: ..\User\User_Driver\inc\bsp_timer.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\pps.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\bsp_dt7.h
+.\objects\stm32f4xx_it.o: ..\User\User_Connector\pack_deal.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\task.h
 .\objects\stm32f4xx_it.o: ..\User\User_App\C620.h
 .\objects\stm32f4xx_it.o: ..\User\User_Algorithm\pid.h

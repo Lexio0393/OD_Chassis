@@ -6,6 +6,7 @@ int main(void)
 {
 
 	uint8_t i;
+	static int16_t count, per;
 	
 	Config_Task();
 	
@@ -21,10 +22,17 @@ int main(void)
 			#endif        
 		}
 		
+		count = DMA_GetCurrDataCounter(DMA1_Stream5);
+		per = 1 - count / RC_FRAME_LENGTH;//得到百分比	  
+		per *= 100; 
+		
 		if( (i % 500) == 0)
 		{
 			#if 1
-
+			g_Print_FinishFlag = 0;
+			sprintf((char *)g_Display_usart, "\nDMA_CurrentCount: %d\r\
+			  Percentage:%d\r\n", count, per);
+			g_Print_FinishFlag = 1;
 			#endif  
 		}
 	}

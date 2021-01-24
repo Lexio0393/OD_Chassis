@@ -6,18 +6,18 @@ extern volatile unsigned char sbus_rx_buffer[2][RC_FRAME_LENGTH]; //double sbusr
 void BSP_DMA_USART2RX_Init(void)
 {
 	DMA_InitTypeDef DMA_InitStructure;
-	NVIC_InitTypeDef NVIC_InitStructure;
+//	NVIC_InitTypeDef NVIC_InitStructure;
 	
 	RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_DMA1, ENABLE);
 	
-	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Stream5_IRQn;
-	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
-	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-	NVIC_Init(&NVIC_InitStructure);
+//	NVIC_InitStructure.NVIC_IRQChannel = DMA1_Stream5_IRQn;
+//	NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01;
+//	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;
+//	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+//	NVIC_Init(&NVIC_InitStructure);
 	
 	DMA_DeInit(DMA1_Stream5);
-		/* 确保DMA数据流复位完成 */
+	/* 确保DMA数据流复位完成 */
 	while(DMA_GetCmdStatus(DMA1_Stream5) != DISABLE)
 	{
 
@@ -49,11 +49,11 @@ void BSP_DMA_USART2RX_Init(void)
 	DMA_InitStructure.DMA_FIFOMode = DMA_FIFOMode_Disable;
 	/*FIFO阈值*/
 	DMA_InitStructure.DMA_FIFOThreshold = DMA_FIFOThreshold_1QuarterFull;
-	/*存储器突发传输 16 个节拍*/
+	/*存储器突发传输 1 个节拍*/
 	DMA_InitStructure.DMA_MemoryBurst = DMA_MemoryBurst_Single;
 	/*外设突发传输 1 个节拍*/
 	DMA_InitStructure.DMA_PeripheralBurst = DMA_PeripheralBurst_Single;
-	/*配置DMA1的数据流*/
+	/*First used memorry configuration*/
 	DMA_DoubleBufferModeConfig(DMA1_Stream5,(uint32_t)&sbus_rx_buffer[1][0],DMA_Memory_0); //first used memory configuration
 	/*使能DMA*/
 	DMA_DoubleBufferModeCmd(DMA1_Stream5, ENABLE);
@@ -63,10 +63,12 @@ void BSP_DMA_USART2RX_Init(void)
 	DMA_Cmd(DMA1_Stream5,ENABLE);		
 	
 	/* 等待DMA数据流有效*/
-	while(DMA_GetCmdStatus(USART2_RX_DMA_STREAM) != ENABLE)
-	{
+//	while(DMA_GetCmdStatus(USART2_RX_DMA_STREAM) != ENABLE)
+//  while(DMA_GetCmdStatus(USART2_RX_DMA_STREAM) != DISABLE)
+//	{
 
-	}
+//	}
+//	DMA_SetCurrDataCounter(DMA1_Stream5, RC_FRAME_LENGTH);
 	/*使能DMA接收*/ 
 	USART_DMACmd(USART2,USART_DMAReq_Rx,ENABLE);
 }

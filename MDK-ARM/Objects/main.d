@@ -44,4 +44,5 @@
 .\objects\main.o: ..\User\User_Driver\inc\bsp_timer.h
 .\objects\main.o: ..\User\User_App\pps.h
 .\objects\main.o: ..\User\User_App\bsp_dt7.h
+.\objects\main.o: ..\User\User_Connector\pack_deal.h
 .\objects\main.o: ..\User\User_App\task.h
