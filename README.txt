@@ -26,3 +26,6 @@ B为模式选择，F为遥控模式下模式选择
 待测试自动
 运动学解算待验证
 电机转向待调试
+
+The other test on Feb. 04 with username Lexio_Lei
+Ensure the reason is incorrect username.
