@@ -8,6 +8,8 @@
 ".\objects\algorithm.o"
 ".\objects\pid.o"
 ".\objects\chassis.o"
+".\objects\pathfollow.o"
+".\objects\path.o"
 ".\objects\main.o"
 ".\objects\stm32f4xx_it.o"
 ".\objects\c620.o"

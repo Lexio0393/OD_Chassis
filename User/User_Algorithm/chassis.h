@@ -38,6 +38,37 @@ typedef struct
 	float rr;
 }wheel_t;
 
+typedef struct
+{
+	PointU_t virtualPos;
+	PointU_t virtualTarget;
+	
+	float passedLength;
+	
+	float totalLength;
+	float pathLength;					//达到某一预设点时应走过的长度
+	float lengthIncrement;		//路径累加（距上一点误差）
+
+	
+	int16_t projectionIndex;
+	int16_t projextionIndexNew;
+	
+	float adjustVel;
+	float adjustVelDir;
+	float targetVel;
+	float targetVelDir;
+	
+	int16_t lookaheadIndex;
+	
+	ChassisVel_t outputVel;
+	
+	float originVel;
+	float originVelDir;
+	
+	float lookaheadDis;
+	
+}PathInfo_t;
+
 /* 底盘基本参数 */
 #define WHEEL_DIAMETER  (152.4f)		//轮子直径（单位：mm）
 #define DISX_OPS2CENTER (0.0f)			//定位系统X轴方向到中心距离
@@ -89,13 +120,14 @@ typedef struct
 	ChassisVel_t chassisVel;
 	Speed_t Speed_C;
 	wheel_t wheelState;
+	PathInfo_t PathInfo;
 }gChassis_t;
 
 extern gChassis_t gChassis;
 #endif
 
 
-//？？
+
 //void YawLock(float ExpectedYaw)			//偏航角锁定                          
 //{
 //	Underpan.Speed_a = UnderpanConfig.OmegaRatio * (ExpectedYaw - LocatorInfo.Yaw);

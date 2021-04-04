@@ -31,6 +31,16 @@ typedef struct
 	float vel;
 }Pose_t;
 
+typedef struct
+{
+	Point_t point;
+	
+	float vel_u;
+	float direction;
+	
+	unsigned short startPtr;
+	unsigned short endPtr;
+}PointU_t;
 
 /* Exported constants --------------------------------------------------------*/
 
