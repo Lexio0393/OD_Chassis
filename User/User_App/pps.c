@@ -2,6 +2,7 @@
 #include "bsp_serial.h"
 #include "bsp_systick.h"
 #include "algorithm.h"
+#include "motion.h"
 
 volatile uint8_t LocatorUpdated = 0;
 
@@ -258,6 +259,17 @@ float GetWZ(void)
 	return ppsReturn.ppsWZ;
 }
 
+Pose_t GetCurrentPoint(void)
+{
+	Pose_t CurrentPoint = {0};
+	
+	CurrentPoint.point.x = GetX();
+	CurrentPoint.point.y = GetY();
+	CurrentPoint.direction = GetAngle();
+//	CurrentPoint.vel = GetSpeedWithoutOmega();
+	
+	return CurrentPoint;
+}
 
 //返回减去绕底盘中心旋转角速度产生的线速度后的速度
 //PosVel_t GetSpeedWithoutOmega(void)

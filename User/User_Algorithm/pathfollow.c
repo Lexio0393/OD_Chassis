@@ -8,7 +8,15 @@
 #include "pps.h"
 
 
-void PathFollowing(float LookAheadDis, float Kp);
+void PathFollowing(float LookAheadDis, float Kp)
+{
+	/*
+	 * float len = GetPassedLength();
+	 * gChassis.PathInfo.projectionIndex = FindLastPassedPoint(float len, float *TheotyLength, uint8_t PathNum);
+	 * CalcProjectionPoint(Pose_t *Path, PointU_t virtualPos, uint8_t projectionLineIndex)
+	 * CalcLookAheadPoint
+	 */
+}
 
 
 
@@ -42,57 +50,108 @@ uint8_t FindLastPassedPoint(float PassedLen, float *TheoryLength, uint8_t PathNu
 	return PointNum;
 }
 
-
-void CalcProjectionPoint(Pose_t *Path, PointU_t virtualPos)
+//CalcProjectionPoint(testPath, GetCurrentPoint, gChassis.PathInfo.projectionIndex)
+void CalcProjectionPoint(Pose_t *Path, uint8_t PathNum, Pose_t CurrentPos, uint8_t projectionLineIndex)
 {
 	static uint8_t searchFlag = FALSE;
 	
-	Pose_t ProjectionPoint;
-	float disRealPos2VirPos;
+	Pose_t ProjectionPoint, tempPoint;
+	Pose_t startPoint, endPoint;
+	float disRealPos2VirPos, tempDis, dist;
 	
-	uint8_t i;
+	uint8_t index_num;
+	uint8_t i = 0;
 	
-	if(gChassis.PathInfo.projectionIndex == 0)
+	if(projectionLineIndex == 0)
 	{
 		searchFlag = TRUE;
 		gChassis.PathInfo.projextionIndexNew = 0;
 	}
 	else
 	{
-		gChassis.PathInfo.projextionIndexNew = gChassis.PathInfo.projectionIndex;
+		gChassis.PathInfo.projextionIndexNew = projectionLineIndex;
 	}
 	
-	i = gChassis.PathInfo.projextionIndexNew;
+	index_num = gChassis.PathInfo.projextionIndexNew;
 	
-	ProjectionPoint = CloestPointOnline((Path + i), (Path + (i+1)), GetX(), GetY());
-//	disRealPos2VirPos = sqrtf((ProjectionPoint.point.x - endPos.point.x) * (ProjectionPoint.point.x - endPos.point.x) +\
-//															(ProjectionPoint.point.y - endPos.point.y) * (ProjectionPoint.point.y - endPos.point.y));
+	startPoint = *(Path + index_num);
+	endPoint = *(Path + (index_num+1));
+	
+	ProjectionPoint = CloestPointOnline(startPoint, endPoint, CurrentPos);
+	
+	disRealPos2VirPos = Calc2PointsDistance(&ProjectionPoint, &CurrentPos);
+	
+	dist = Calc2PointsDistance(&ProjectionPoint, &endPoint);
+
     
-//    for i = ProjectionLineIndexNew+1:size(waypoints,1)-1
-
-//        if ~searchFlag && dist > LookaheadDistance
-//            break;
-//        end
-//        dist = dist + norm(waypoints(i,1:2) - waypoints(i+1,1:2));
-//        % Check the remaining waypoints
-//        [tempPoint, tempDistance] = ...
-//            closestPointOnLine(waypoints(i,1:2), ...
-//            waypoints(i+1,1:2), pose(1:2));
-
-//        if tempDistance < minDistance
-//            minDistance = tempDistance;
-//            ProjectionPoint = tempPoint;
-//            ProjectionLineIndexNew = cast(i, 'like', pose);
-	
+	for(i = index_num + 1;  i < PathNum; i++)
+	{
+		if(~searchFlag && disRealPos2VirPos > gChassis.PathInfo.lookaheadDis)
+		{
+			break;
+		}
+		
+		dist = dist + Calc2PointsDistance(Path + i, (Path + (i+1)));
+		
+		tempPoint = CloestPointOnline(*(Path+i), *(Path + (i+1)), CurrentPos);
+		tempDis = Calc2PointsDistance(&tempPoint, &CurrentPos);
+		
+		if(tempDis < disRealPos2VirPos)
+		{
+			disRealPos2VirPos = tempDis;
+			ProjectionPoint = tempPoint;
+			gChassis.PathInfo.projextionIndexNew = i;
+		}
+	}	
 }
 
-void CalcLookAheadPoint(PointU_t virtualPos, PointU_t virtualTarget);						//VirtualTarget
+void CalcLookAheadPoint(Pose_t *Path, uint8_t PathNum, Pose_t projetionPos, uint8_t projectionIndex)				//VirtualTarget
+{
+	Pose_t LookaheadStartPoint, LookaheadEndPoint;
+	Pose_t LookaheadPoint;
+	
+	uint8_t index_num = 0;
+	uint8_t lookaheadIndex = projectionIndex;
+	
+	float dis, overshootDis;
+	float alpha;
+	
+	index_num = projectionIndex + 1;
+	dis = Calc2PointsDistance(&projetionPos, (Path+index_num));
+	
+	LookaheadStartPoint = projetionPos;
+	LookaheadEndPoint = *(Path + index_num);
+	
+	overshootDis = dis - gChassis.PathInfo.lookaheadDis;
+	
+	while(overshootDis <0 && lookaheadIndex < PathNum)
+	{
+		lookaheadIndex++;
+		
+		LookaheadStartPoint = *(Path + lookaheadIndex);
+		LookaheadEndPoint = *(Path +(lookaheadIndex + 1));
+		dis = dis + Calc2PointsDistance(&LookaheadStartPoint, &LookaheadEndPoint);
+		
+		overshootDis = dis - gChassis.PathInfo.lookaheadDis;
+	}
+	
+	
+	alpha = overshootDis / Calc2PointsDistance(&LookaheadStartPoint, &LookaheadEndPoint);
+	
+	if(alpha > 0)
+	{
+		LookaheadPoint.point.x = alpha * LookaheadStartPoint.point.x + (1 - alpha) * LookaheadEndPoint.point.x;
+		LookaheadPoint.point.y = alpha * LookaheadStartPoint.point.y + (1 - alpha) * LookaheadEndPoint.point.y;
+	}
+	else
+	{
+		LookaheadPoint = LookaheadEndPoint;
+	}
+}
 
-
-Pose_t CloestPointOnline(Pose_t startPos, Pose_t endPos, float curX, float curY)
+Pose_t CloestPointOnline(Pose_t startPos, Pose_t endPos, Pose_t currentPos)
 {
 	Pose_t cloestPoint;
-	
 //	vector_t v12;
 //	vector_t vr2;
 	
@@ -120,8 +179,8 @@ Pose_t CloestPointOnline(Pose_t startPos, Pose_t endPos, float curX, float curY)
 	
 	v12.x = startPos.point.x - endPos.point.x;
 	v12.y = startPos.point.y - endPos.point.y;
-	vr2.x = curX - endPos.point.x;
-	vr2.y = curY - endPos.point.y;
+	vr2.x = currentPos.point.x - endPos.point.x;
+	vr2.y = currentPos.point.y - endPos.point.y;
 	
 	alpha = (v12.x * vr2.x + v12.y * vr2.y) / sqrtf(v12.x * v12.x + v12.y * v12.y);
 	
@@ -159,3 +218,13 @@ uint8_t JudgeLengthLessEqual(float lengthInput, float lengthCompared, float leng
 		return 1;
 	}
 }
+
+float Calc2PointsDistance(Pose_t *firstPoint, Pose_t *secondPoint)
+{
+	Pose_t firstPos = *firstPoint;
+	Pose_t secondPos = *secondPoint;
+	
+	return sqrtf((firstPos.point.x - secondPos.point.x) * (firstPos.point.x - secondPos.point.x) +\
+															(firstPos.point.y - secondPos.point.y) * (firstPos.point.y - secondPos.point.y));
+}
+

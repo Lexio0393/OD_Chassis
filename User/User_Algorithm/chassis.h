@@ -50,15 +50,15 @@ typedef struct
 	float lengthIncrement;		//路径累加（距上一点误差）
 
 	
-	int16_t projectionIndex;
-	int16_t projextionIndexNew;
+	uint8_t projectionIndex;
+	uint8_t projextionIndexNew;
 	
 	float adjustVel;
 	float adjustVelDir;
 	float targetVel;
 	float targetVelDir;
 	
-	int16_t lookaheadIndex;
+	uint8_t lookaheadIndex;
 	
 	ChassisVel_t outputVel;
 	
