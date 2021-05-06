@@ -73,7 +73,7 @@ PointU_t VectorLinerInterpolation(Pose_t startPos, Pose_t endPos, float percent)
 
 vector_t CalcSpeedFromAct2Vir(Pose_t actPos, PointU_t virPos, float Kp);
 
-vector_t VectorSynthesis(vector_t targetVel, vector_t adjustVel);
+vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjustVel);
 
 
 gRobot_t gRobot;

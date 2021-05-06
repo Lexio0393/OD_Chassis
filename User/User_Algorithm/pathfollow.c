@@ -2,67 +2,101 @@
 
 #include "algorithm.h"
 #include "motion.h"
+#include "chassis.h"
 
 #include "pps.h"
 
-#define MAX_PLAN_VEL  (0.0f)
-#define TEST_PATH_NUM (10)
-#define VELL_TESTPATH				(0.5f)
+#define MAX_PLAN_VEL    (0.0f)
+#define TEST_PATH_NUM   (10)
+#define VELL_TESTPATH		(0.5f)
 
 float testPathLen[TEST_PATH_NUM];
 Pose_t testPath[TEST_PATH_NUM];
 
 void PathFollowing(float percent, float Kp)
 {
-	static uint8_t actNum = 0;
+	//搜索点判断标志位
+	static uint8_t indexNum = 0;
+	static uint8_t searchFlag = 0;
+	
 	
 	static float passedLength = 0.0f;
-	
 	static Pose_t actPoint = {0.0f};
 	
 	Pose_t startPoint, endPoint = {0.0f};
 	
-	vector_t outputVel = {0.0f};
 	
-	robotVel_t finalVel = {0.0f};
+	vector_t adjustVel = {0.0f};
+	vector_t finalVel = {0.0f};
 	
-	while(actNum < gRobot.totalNum)
+	gRobot.virtualPos.u = percent;
+	
+	//初始化设置，保证循环能顺利进行
+	if(indexNum == 0)
 	{
+		searchFlag = 1;
+	}
+	
+	/**********************************
+	 * 循环条件是否需要修改？
+	 * 不能是死循环 或者不能使用while
+	 * 外部需要if语句判断是否达到终点，提前覆盖pathfollowing做出响应
+   ***********************************
+	 */
+	
+	while(1)
+	{
+
 		actPoint.point.x = GetX(); 
 		actPoint.point.y = GetY();
-		
-		passedLength = GetLengthPassed();
-		
-		actNum = FindSpan(gRobot.totalNum, passedLength, testPathLen);
-		
-		if(actNum >= gRobot.totalNum)
+	
+		if(indexNum < gRobot.totalNum)
 		{
-			actNum = 0;
-			break;
+			passedLength = GetLengthPassed();
+			indexNum = FindSpan(gRobot.totalNum, passedLength, testPathLen);
+			
+			gRobot.virtualPos.startPtr = indexNum;
+			gRobot.virtualPos.endPtr   = indexNum + 1;
 		}
 		else
 		{
-			gRobot.virtualPos.u = percent;
-			gRobot.virtualPos.startPtr = actNum;
-			gRobot.virtualPos.endPtr   = actNum + 1;
+			passedLength = gRobot.totalLength;
+			indexNum = gRobot.totalNum;
+			
+			gRobot.virtualPos.startPtr = indexNum;
+			gRobot.virtualPos.endPtr   = indexNum;
+			searchFlag = ~searchFlag;
+		}
+
+		if(searchFlag)
+		{
 			startPoint = testPath[gRobot.virtualPos.startPtr];
 			endPoint   = testPath[gRobot.virtualPos.endPtr];
-		}
-		
-		gRobot.virtualPos = VectorLinerInterpolation(startPoint, endPoint, percent);
-		
-		outputVel = CalcSpeedFromAct2Vir(actPoint, gRobot.virtualPos, Kp);
-		
-		if(outputVel.module > 0.01f)
-		{
-			gRobot.outputVel = outputVel.module;
-			gRobot.outputDirection = outputVel.direction;
+			
+			gRobot.virtualPos = VectorLinerInterpolation(startPoint, endPoint, gRobot.virtualPos.u);
+			adjustVel = CalcSpeedFromAct2Vir(actPoint, gRobot.virtualPos, Kp);
+			
+			finalVel = VectorSynthesis(MAX_PLAN_VEL, gRobot.virtualPos.direction, adjustVel);
+			
+			if(finalVel.module > 0.01f)
+			{
+				gRobot.outputVel = finalVel.module;
+				gRobot.outputDirection = finalVel.direction;
+			}
+			else
+			{
+				gRobot.outputVel = finalVel.module;
+				gRobot.outputDirection = gRobot.outputDirection;
+			}
 		}
 		else
 		{
-			gRobot.outputVel = outputVel.module;
-			gRobot.outputDirection = gRobot.outputDirection;
+			//更新值
+			
+			break;
 		}
+		
+		OutputVel2Wheel_FixedC(gRobot.outputVel, gRobot.outputDirection, GetWZ());
 	}
 	
 }
@@ -130,17 +164,17 @@ vector_t CalcSpeedFromAct2Vir(Pose_t actPos, PointU_t virPos, float Kp)
 	return adjustVel;
 }
 
-vector_t VectorSynthesis(vector_t targetVel, vector_t adjustVel)
+vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjustVel)
 {
 	Speed_t Decompose = {0.0f};
 	vector_t outputVel = {0.0f};
 	
 	float targetDir, adjustDir = 0.0f;	//初值待修改
 	
-	Decompose.x = targetVel.module * arm_cos_f32(ANGLE2RAD(targetVel.direction)) + \
+	Decompose.x = targetVel * arm_cos_f32(ANGLE2RAD(targetDirection)) + \
 						   adjustVel.module * arm_cos_f32(ANGLE2RAD(adjustVel.direction));
 	
-	Decompose.y = targetVel.module * arm_sin_f32(ANGLE2RAD(targetVel.direction)) + \
+	Decompose.y = targetVel * arm_sin_f32(ANGLE2RAD(targetDirection)) + \
 						   adjustVel.module * arm_sin_f32(ANGLE2RAD(adjustVel.direction));
 	
 	arm_sqrt_f32(Decompose.x * Decompose.x + Decompose.y * Decompose.y, &outputVel.module);
