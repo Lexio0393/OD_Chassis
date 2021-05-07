@@ -34,7 +34,7 @@ void PathFollowing(float percent, float Kp)
 	//初始化设置，保证循环能顺利进行
 	if(indexNum == 0)
 	{
-		searchFlag = 1;
+		searchFlag = 0;
 	}
 	
 	/**********************************
@@ -44,38 +44,40 @@ void PathFollowing(float percent, float Kp)
    ***********************************
 	 */
 	
-	while(1)
+	while(indexNum <= gRobot.totalNum || passedLength < gRobot.totalLength)
 	{
 
 		actPoint.point.x = GetX(); 
 		actPoint.point.y = GetY();
-	
-		if(indexNum < gRobot.totalNum)
+//			passedLength = GetLengthPassed(indexNum);   //待重写函数
+		
+		if(passedLength < gRobot.totalLength)
 		{
-			passedLength = GetLengthPassed();
 			indexNum = FindSpan(gRobot.totalNum, passedLength, testPathLen);
 			
 			gRobot.virtualPos.startPtr = indexNum;
-			gRobot.virtualPos.endPtr   = indexNum + 1;
+			gRobot.virtualPos.endPtr   = indexNum + 1;		
+			searchFlag = 1;
 		}
-		else
+		else if(passedLength >= gRobot.totalLength)
 		{
 			passedLength = gRobot.totalLength;
+			
 			indexNum = gRobot.totalNum;
 			
 			gRobot.virtualPos.startPtr = indexNum;
 			gRobot.virtualPos.endPtr   = indexNum;
-			searchFlag = ~searchFlag;
+			searchFlag = 0;
 		}
 
 		if(searchFlag)
 		{
 			startPoint = testPath[gRobot.virtualPos.startPtr];
 			endPoint   = testPath[gRobot.virtualPos.endPtr];
-			
+				
 			gRobot.virtualPos = VectorLinerInterpolation(startPoint, endPoint, gRobot.virtualPos.u);
 			adjustVel = CalcSpeedFromAct2Vir(actPoint, gRobot.virtualPos, Kp);
-			
+				
 			finalVel = VectorSynthesis(MAX_PLAN_VEL, gRobot.virtualPos.direction, adjustVel);
 			
 			if(finalVel.module > 0.01f)
@@ -91,14 +93,19 @@ void PathFollowing(float percent, float Kp)
 		}
 		else
 		{
-			//更新值
+			startPoint = testPath[gRobot.virtualPos.startPtr];
+			endPoint   = testPath[gRobot.virtualPos.endPtr];
 			
-			break;
+			gRobot.virtualPos.point.x = startPoint.point.x;
+			gRobot.virtualPos.point.y = startPoint.point.y;
+			
+			finalVel = (vector_t){0.0f, gRobot.virtualPos.direction};
+			gRobot.outputVel = finalVel.module;
+			gRobot.outputDirection = gRobot.outputDirection;
 		}
-		
+	
 		OutputVel2Wheel_FixedC(gRobot.outputVel, gRobot.outputDirection, GetWZ());
 	}
-	
 }
 
 
