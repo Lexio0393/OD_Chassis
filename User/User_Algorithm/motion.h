@@ -34,7 +34,7 @@ typedef struct
 typedef struct
 {
 	Point_t point;
-	float u;
+	float vel;
 	float direction;
 	unsigned short startPtr;
 	unsigned short endPtr;

@@ -29,8 +29,6 @@ void PathFollowing(float percent, float Kp)
 	vector_t adjustVel = {0.0f};
 	vector_t finalVel = {0.0f};
 	
-	gRobot.virtualPos.u = percent;
-	
 	//初始化设置，保证循环能顺利进行
 	if(indexNum == 0)
 	{
@@ -51,35 +49,41 @@ void PathFollowing(float percent, float Kp)
 		actPoint.point.y = GetY();
 //			passedLength = GetLengthPassed(indexNum);   //待重写函数
 		
-		if(passedLength < gRobot.totalLength)
+		if(passedLength < gRobot.totalLength && indexNum <= gRobot.totalNum)
 		{
 			indexNum = FindSpan(gRobot.totalNum, passedLength, testPathLen);
 			
 			gRobot.virtualPos.startPtr = indexNum;
-			gRobot.virtualPos.endPtr   = indexNum + 1;		
+			gRobot.virtualPos.endPtr   = indexNum + 1;
+			startPoint = testPath[gRobot.virtualPos.startPtr];
+			endPoint   = testPath[gRobot.virtualPos.endPtr];
+			
 			searchFlag = 1;
 		}
-		else if(passedLength >= gRobot.totalLength)
+		else if(passedLength >= gRobot.totalLength - 1000.0f || passedLength <= gRobot.totalLength + 1000.0f)
+		{
+			//data 
+			searchFlag = 0;
+			break;
+		}
+		else if(passedLength >= gRobot.totalLength && searchFlag == 1)  //跑过死区，如果到达附近就跳出
 		{
 			passedLength = gRobot.totalLength;
-			
 			indexNum = gRobot.totalNum;
 			
 			gRobot.virtualPos.startPtr = indexNum;
 			gRobot.virtualPos.endPtr   = indexNum;
-			searchFlag = 0;
+			startPoint = testPath[gRobot.virtualPos.startPtr];
+			endPoint   = testPath[gRobot.virtualPos.endPtr];
 		}
 
 		if(searchFlag)
 		{
-			startPoint = testPath[gRobot.virtualPos.startPtr];
-			endPoint   = testPath[gRobot.virtualPos.endPtr];
-				
-			gRobot.virtualPos = VectorLinerInterpolation(startPoint, endPoint, gRobot.virtualPos.u);
+			gRobot.virtualPos = VectorLinerInterpolation(startPoint, endPoint, percent);
 			adjustVel = CalcSpeedFromAct2Vir(actPoint, gRobot.virtualPos, Kp);
-				
-			finalVel = VectorSynthesis(MAX_PLAN_VEL, gRobot.virtualPos.direction, adjustVel);
-			
+					
+			finalVel = VectorSynthesis(gRobot.virtualPos.vel, gRobot.virtualPos.direction, adjustVel);
+	
 			if(finalVel.module > 0.01f)
 			{
 				gRobot.outputVel = finalVel.module;
@@ -90,22 +94,10 @@ void PathFollowing(float percent, float Kp)
 				gRobot.outputVel = finalVel.module;
 				gRobot.outputDirection = gRobot.outputDirection;
 			}
-		}
-		else
-		{
-			startPoint = testPath[gRobot.virtualPos.startPtr];
-			endPoint   = testPath[gRobot.virtualPos.endPtr];
-			
-			gRobot.virtualPos.point.x = startPoint.point.x;
-			gRobot.virtualPos.point.y = startPoint.point.y;
-			
-			finalVel = (vector_t){0.0f, gRobot.virtualPos.direction};
-			gRobot.outputVel = finalVel.module;
-			gRobot.outputDirection = gRobot.outputDirection;
-		}
 	
-		OutputVel2Wheel_FixedC(gRobot.outputVel, gRobot.outputDirection, GetWZ());
-	}
+			OutputVel2Wheel_FixedC(gRobot.outputVel, gRobot.outputDirection, GetWZ());
+		}
+	}	
 }
 
 
@@ -142,14 +134,27 @@ PointU_t VectorLinerInterpolation(Pose_t startPos, Pose_t endPos, float percent)
 	float xErr, yErr = 0.0f;
 	PointU_t virutalPos = {0.0f};
 	
-	xErr = endPos.point.x - startPos.point.x;
-	yErr = endPos.point.y - startPos.point.y;
+	if(startPos.point.x == endPos.point.x && startPos.point.y == endPos.point.y)
+	{
+		xErr = endPos.point.x - startPos.point.x;
+		yErr = endPos.point.y - startPos.point.y;
+		
+		virutalPos.point.x = startPos.point.x + percent * xErr;
+		virutalPos.point.y = startPos.point.y + percent * yErr;
+		virutalPos.vel = startPos.vel * (1 - percent) + endPos.vel * percent;
+		virutalPos.direction = startPos.direction;
+	}
+	else
+	{
+		xErr = endPos.point.x - startPos.point.x;
+		yErr = endPos.point.y - startPos.point.y;
+		
+		virutalPos.point.x = startPos.point.x + percent * xErr;
+		virutalPos.point.y = startPos.point.y + percent * yErr;
+		virutalPos.vel = startPos.vel * (1 - percent) + endPos.vel * percent;
+		virutalPos.direction = RAD2ANGLE(atan2f(yErr, xErr));		//注意actan参数为0时，是否需要考虑特殊情况？
+	}
 	
-	virutalPos.point.x = startPos.point.x + percent * xErr;
-	virutalPos.point.y = startPos.point.y + percent * yErr;
-	virutalPos.u = percent;
-	virutalPos.direction = RAD2ANGLE(atan2f(yErr, xErr));		//注意actan参数为0时，是否需要考虑特殊情况？
-
 	return virutalPos;
 }
 
