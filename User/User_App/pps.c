@@ -280,11 +280,41 @@ float GetWZ(void)
 
 //暂时代替正交编码器计算路程
 //计算累计行走路径，后期需要添加计算在预计路径上的行走长度
-float GetLengthPassed(void)
+//float GetLengthPassed(void)
+//{
+//	static float Last_x, Last_y= 0.0f;
+//	static float Err_x, Err_y;
+//	static float PassedLen = 0.0f;
+//		
+//	if(LocatorUpdated)
+//	{
+//		if(LocatorInfo.xVal != Last_x)	//x坐标改变了(这里数据没收到的话，浮点值是完全一样的)
+//		{
+//			Err_x = LocatorInfo.xVal - Last_x;
+//			
+//			if(ValueInRange_f(Err_x, -150.0, 150.0))
+//				Last_x = LocatorInfo.xVal;
+//		}
+//		
+//		if(LocatorInfo.yVal != Last_y)	//y坐标改变了(这里数据没收到的话，浮点值是完全一样的)
+//		{
+//			Err_y = LocatorInfo.yVal - Last_y;
+//			
+//			if(ValueInRange_f(Err_y, -150.0, 150.0))
+//				Last_y = LocatorInfo.yVal;
+//		}
+//		
+//		PassedLen += sqrt(pow(Err_x, 2) + pow(Err_y, 2));
+//	}
+//	return PassedLen;
+//}
+
+float GetActLengthPaseed(uint8_t indexNum, PathInfo_t *PathInfo)
 {
 	static float Last_x, Last_y= 0.0f;
 	static float Err_x, Err_y;
 	static float PassedLen = 0.0f;
+	static float PassedLenOnPath = 0.0f;
 		
 	if(LocatorUpdated)
 	{
@@ -305,6 +335,7 @@ float GetLengthPassed(void)
 		}
 		
 		PassedLen += sqrt(pow(Err_x, 2) + pow(Err_y, 2));
+		PassedLenOnPath += PassedLen * arm_cos_f32(ANGLE2RAD(PathInfo[indexNum].tangentDir));
 	}
-	return PassedLen;
+	return PassedLenOnPath;
 }

@@ -65,16 +65,15 @@ typedef struct gRobot_t
 	
 
 
-void PathFollowing(float percent, float Kp);
+void PathFollowing(float percent, float Kp, Pose_t *Path, PathInfo_t *PathInfo);
 
-uint8_t FindSpan(uint8_t totalNum, float PassedLength, float *PathLength);
+uint8_t FindSpan(uint8_t totalNum, float PassedLen, PathInfo_t *PathInfo);
 
 PointU_t VectorLinerInterpolation(Pose_t startPos, Pose_t endPos, float percent);
 
 vector_t CalcSpeedFromAct2Vir(Pose_t actPos, PointU_t virPos, float Kp);
 
 vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjustVel);
-
 
 gRobot_t gRobot;
 #endif

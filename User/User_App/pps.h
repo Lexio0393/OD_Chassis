@@ -2,6 +2,7 @@
 #define __PPS_H
 
 #include "stm32f4xx.h"
+#include "motion.h"
 
 #define GET_PPS_VALUE_NUM		6	//接收几个来自定位系统的float数据
 #define GET_PPS_DATA_NUM		24  //接收几个来自定位系统的uint8_t数据 /* 6 * 4byte = 24 */
@@ -96,7 +97,7 @@ float GetContiniousAngle(void);
 
 
 float GetLengthPassed(void);
-
+float GetActLengthPaseed(uint8_t indexNum, PathInfo_t *PathInfo);
 void Locator_SerialIsr(void);
 
 PosVel_t GetSpeedWithoutOmega(void);

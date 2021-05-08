@@ -274,3 +274,28 @@ void AutoStatus_Send_Task(void)
 	SetJoggingVel(CAN1, ID_C620_CTRL, C620);	
 }
 
+
+
+
+void AutoStatus_Execute_Task(void)
+{
+	
+}
+
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

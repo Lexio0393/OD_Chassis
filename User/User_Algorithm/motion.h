@@ -21,6 +21,12 @@ typedef struct
 	float y;
 }Point_t;
 
+typedef struct
+{
+	float tangentDir;
+	float trackLength;
+}PathInfo_t;
+
 /* 姿态结构体，以点斜式描述机器人所处位置与在该位置上姿态 ，斜率用角度制的角度代替 */
 typedef struct
 {

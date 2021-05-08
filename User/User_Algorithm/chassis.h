@@ -91,6 +91,10 @@ typedef struct
 	wheel_t wheelState;
 }gChassis_t;
 
+typedef enum
+{
+	
+}
 extern gChassis_t gChassis;
 #endif
 

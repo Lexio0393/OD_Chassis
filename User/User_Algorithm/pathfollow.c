@@ -10,35 +10,30 @@
 #define TEST_PATH_NUM   (10)
 #define VELL_TESTPATH		(0.5f)
 
-float testPathLen[TEST_PATH_NUM];
-Pose_t testPath[TEST_PATH_NUM];
-
-void PathFollowing(float percent, float Kp)
+void PathFollowing(float percent, float Kp, Pose_t *Path, PathInfo_t *PathInfo)
 {
 	//搜索点判断标志位
-	static uint8_t indexNum = 0;
-	static uint8_t searchFlag = 0;
-	
-	
-	static float passedLength = 0.0f;
-	static Pose_t actPoint = {0.0f};
-	
+	uint8_t indexNum = 0;
 	Pose_t startPoint, endPoint = {0.0f};
 	
-	
 	vector_t adjustVel = {0.0f};
-	vector_t finalVel = {0.0f};
+	vector_t finalVel = {0.0f};	
+	
+	static uint8_t searchFlag = 0;
+	static float passedLength = 0.0f;
+	static Pose_t actPoint = {0.0f};
 	
 	//初始化设置，保证循环能顺利进行
 	if(indexNum == 0)
 	{
 		searchFlag = 0;
+		passedLength = PathInfo[indexNum].trackLength;
 	}
 	
 	/**********************************
-	 * 循环条件是否需要修改？
-	 * 不能是死循环 或者不能使用while
-	 * 外部需要if语句判断是否达到终点，提前覆盖pathfollowing做出响应
+	 * 外部需要if语句判断是否达到终点
+	 * while内死区小于外界if死区
+	 * pathfollow的while跳出后， 外界if做出判断与响应
    ***********************************
 	 */
 	
@@ -47,34 +42,39 @@ void PathFollowing(float percent, float Kp)
 
 		actPoint.point.x = GetX(); 
 		actPoint.point.y = GetY();
-//			passedLength = GetLengthPassed(indexNum);   //待重写函数
+		passedLength = GetActLengthPaseed(indexNum, PathInfo);
 		
 		if(passedLength < gRobot.totalLength && indexNum <= gRobot.totalNum)
 		{
-			indexNum = FindSpan(gRobot.totalNum, passedLength, testPathLen);
+			indexNum = FindSpan(gRobot.totalNum, passedLength, PathInfo);
 			
 			gRobot.virtualPos.startPtr = indexNum;
 			gRobot.virtualPos.endPtr   = indexNum + 1;
-			startPoint = testPath[gRobot.virtualPos.startPtr];
-			endPoint   = testPath[gRobot.virtualPos.endPtr];
+			startPoint = Path[gRobot.virtualPos.startPtr];
+			endPoint   = Path[gRobot.virtualPos.endPtr];
 			
 			searchFlag = 1;
 		}
-		else if(passedLength >= gRobot.totalLength - 1000.0f || passedLength <= gRobot.totalLength + 1000.0f)
+		else if(passedLength >= gRobot.totalLength - 10.0f && passedLength <= gRobot.totalLength + 10.0f)
 		{
-			//data 
+			passedLength = gRobot.totalLength;
+			actPoint = Path[gRobot.totalNum];
+			
+			gRobot.outputVel = 0.0f;
+			gRobot.outputDirection = gRobot.outputDirection;
+			
 			searchFlag = 0;
 			break;
 		}
-		else if(passedLength >= gRobot.totalLength && searchFlag == 1)  //跑过死区，如果到达附近就跳出
+		else if(passedLength >= gRobot.totalLength && searchFlag == 1)  //跑过死区太多就调整，如果到达附近就跳出
 		{
 			passedLength = gRobot.totalLength;
 			indexNum = gRobot.totalNum;
 			
 			gRobot.virtualPos.startPtr = indexNum;
 			gRobot.virtualPos.endPtr   = indexNum;
-			startPoint = testPath[gRobot.virtualPos.startPtr];
-			endPoint   = testPath[gRobot.virtualPos.endPtr];
+			startPoint = Path[gRobot.virtualPos.startPtr];
+			endPoint   = Path[gRobot.virtualPos.endPtr];
 		}
 
 		if(searchFlag)
@@ -101,11 +101,11 @@ void PathFollowing(float percent, float Kp)
 }
 
 
-uint8_t FindSpan(uint8_t totalNum, float PassedLen, float *PathLength)
+uint8_t FindSpan(uint8_t totalNum, float PassedLen, PathInfo_t *PathInfo)
 {
 	uint8_t low, high, mid = 0;
 	
-	float totalLength = PathLength[totalNum];
+	float totalLength = PathInfo[totalNum].trackLength;
 	
 	if(PassedLen >= totalLength)
 		return (uint8_t) totalNum;
@@ -114,9 +114,9 @@ uint8_t FindSpan(uint8_t totalNum, float PassedLen, float *PathLength)
 	high = totalNum + 1;
 	mid = (low + high) / 2;
 	
-	while(PassedLen < PathLength[mid] || PassedLen > PathLength[mid + 1])
+	while(PassedLen < PathInfo[mid].trackLength || PassedLen > PathInfo[mid + 1].trackLength)
 	{
-		if(PassedLen < PathLength[mid])
+		if(PassedLen < PathInfo[mid].trackLength)
 			high = mid;
 		else
 			low = mid;
@@ -162,16 +162,14 @@ vector_t CalcSpeedFromAct2Vir(Pose_t actPos, PointU_t virPos, float Kp)
 {
 	vector_t adjustVel = {0.0f};
 	
-	float xErr, yErr, posErr= 0.0f;
+	float xErr, yErr, disErr= 0.0f;
 	
 	xErr = virPos.point.x - actPos.point.x;
 	yErr = virPos.point.y - actPos.point.y;
-	arm_sqrt_f32(xErr * xErr + yErr * yErr, &posErr);
+	arm_sqrt_f32(xErr * xErr + yErr * yErr, &disErr);
 	
-	adjustVel.module = Kp * posErr;
+	adjustVel.module = Kp * disErr;
 	adjustVel.direction = RAD2ANGLE(atan2f(yErr, xErr));
-	
-//	adjustVel.module = MAX_PLAN_VEL;
 	
 	return adjustVel;
 }
@@ -194,9 +192,6 @@ vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjust
 	
 	return outputVel;
 }
-
-
-
 
 
 
