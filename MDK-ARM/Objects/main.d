@@ -42,5 +42,6 @@
 .\objects\main.o: ..\User\User_Driver\inc\bsp_serial.h
 .\objects\main.o: ..\User\User_Driver\inc\bsp_timer.h
 .\objects\main.o: ..\User\User_App\pps.h
+.\objects\main.o: ..\User\User_Algorithm\motion.h
 .\objects\main.o: ..\User\User_App\bsp_09s.h
 .\objects\main.o: ..\User\User_App\task.h

@@ -5,6 +5,7 @@
 
 #include "motion.h"
 
+#define TEST_PATH_NUM (6)
 /*************
  * Pose_t Path[NUM]				: 通过B样条曲线计算出的均匀路径点，{Point.x, Point.y, Posture, Speed}
  * float  PathLength[NUM] : 通过B样条曲线计算出的每一均匀路径点上对应的路程长度，用于寻找离当前位置最近两点，返回数组下标
@@ -75,5 +76,9 @@ vector_t CalcSpeedFromAct2Vir(Pose_t actPos, PointU_t virPos, float Kp);
 
 vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjustVel);
 
+uint8_t JudgeStop(float disChange,uint8_t countTime);
 gRobot_t gRobot;
+
+extern Pose_t testPath[TEST_PATH_NUM];
+extern PathInfo_t testPathInfo[TEST_PATH_NUM];
 #endif

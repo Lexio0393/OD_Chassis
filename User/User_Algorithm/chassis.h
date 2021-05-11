@@ -83,18 +83,26 @@ void SendCmd2Driver(float rfVel, float lfVel, float lrVel, float rrVel);
 float RotateVel2Vel(int rpm);
 int Vel2RotateVel(float vel);
 
+typedef enum
+{
+	waitForStart,
+	goTo1stZone,
+	reach1stPos,
+	waitCommand,
+	stop,
+}autoStatus_t;
+
 //全局变量
 typedef struct
 {
 	ChassisVel_t chassisVel;
 	Speed_t Speed_C;
 	wheel_t wheelState;
+	
+	autoStatus_t runnigStatus;
 }gChassis_t;
 
-typedef enum
-{
-	
-}
+
 extern gChassis_t gChassis;
 #endif
 

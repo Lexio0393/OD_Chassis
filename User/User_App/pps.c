@@ -3,6 +3,7 @@
 #include "bsp_systick.h"
 #include "algorithm.h"
 
+
 volatile uint8_t LocatorUpdated = 0;
 
 uint8_t TxMsg[16] = 
@@ -208,49 +209,15 @@ float GetY(void)
 	return ppsReturn.ppsY;
 }
 /*返回定位系统的X轴的速度*/
-//float GetSpeedX(void)
-////{
-//	SetStartTime();
-//	static float Prev_x = 0.0f;
-//	static float Delta_x;
-//	
-//	if(LocatorUpdated)
-//	{
-//		SetEndTime();
-//		if(LocatorInfo.xVal != Prev_x)	//x坐标改变了(这里数据没收到的话，浮点值是完全一样的)
-//		{
-//			Delta_x = LocatorInfo.xVal - Prev_x;
-//			
-//			if(ValueInRange_f(Delta_x, -150.0, 150.0))
-//				Prev_x = LocatorInfo.xVal;
-//		}
-//		
-//		ppsReturn.ppsSpeedX = Delta_x / GetTimeInterval();
-//	}
-//	return ppsReturn.ppsSpeedX;
-//}
+float GetSpeedX(void)
+{
+	return ppsReturn.ppsSpeedX;
+}
 /*返回定位系统的Y轴的速度*/
-//float GetSpeedY(void)
-//{
-//	SetStartTime();
-//	static float Prev_y = 0.0f;
-//	static float Delta_y;
-//	
-//	if(LocatorUpdated)
-//	{
-//		SetEndTime();
-//		if(LocatorInfo.yVal != Prev_y)	//y坐标改变了(这里数据没收到的话，浮点值是完全一样的)
-//		{
-//			Delta_y = LocatorInfo.yVal - Prev_y;
-//			
-//			if(ValueInRange_f(Delta_y, -150.0, 150.0))
-//				Prev_y = LocatorInfo.yVal;
-//		}
-//		
-//		ppsReturn.ppsSpeedY = Delta_y / GetTimeInterval();
-//	}
-//	return ppsReturn.ppsSpeedY;
-//}
+float GetSpeedY(void)
+{
+	return ppsReturn.ppsSpeedY;
+}
 /*返回定位系统的Z轴角速度值*/
 float GetWZ(void)
 {
@@ -260,82 +227,87 @@ float GetWZ(void)
 
 
 //返回减去绕底盘中心旋转角速度产生的线速度后的速度
-//PosVel_t GetSpeedWithoutOmega(void)
-//{
-//	PosVel_t vel = {0.0f};
-//	float rotateVel;
-//	float rotateVelDirection = 0.0f;
-//	
+PosVel_t GetSpeedWithoutOmega(void)
+{
+	PosVel_t vel = {0.0f};
+	float rotateVel;
+	float rotateVelDirection = 0.0f;
+	
 //	rotateVel = ANGLE2RAD(GetWZ()) * sqrtf(DISX_OPS2CENTER * DISX_OPS2CENTER + DISY_OPS2CENTER * DISY_OPS2CENTER);
 //	
 //	rotateVelDirection = 90.0f + RAD2ANGLE(atan2f(DISY_OPS2CENTER,DISX_OPS2CENTER)) + GetAngle();
-//	
-//	AngleLimit(&rotateVelDirection);
-//	
-//	vel.x = GetSpeedX() - rotateVel * cosf(ANGLE2RAD(rotateVelDirection));
-//	vel.y = GetSpeedY() - rotateVel * sinf(ANGLE2RAD(rotateVelDirection));
-//	
-//	return vel;
-//}
+	
+	AngleLimit(&rotateVelDirection);
+	
+	vel.x = GetSpeedX() - rotateVel * cosf(ANGLE2RAD(rotateVelDirection));
+	vel.y = GetSpeedY() - rotateVel * sinf(ANGLE2RAD(rotateVelDirection));
+	
+	return vel;
+}
 
-//暂时代替正交编码器计算路程
-//计算累计行走路径，后期需要添加计算在预计路径上的行走长度
-//float GetLengthPassed(void)
-//{
-//	static float Last_x, Last_y= 0.0f;
-//	static float Err_x, Err_y;
-//	static float PassedLen = 0.0f;
-//		
-//	if(LocatorUpdated)
-//	{
-//		if(LocatorInfo.xVal != Last_x)	//x坐标改变了(这里数据没收到的话，浮点值是完全一样的)
-//		{
-//			Err_x = LocatorInfo.xVal - Last_x;
-//			
-//			if(ValueInRange_f(Err_x, -150.0, 150.0))
-//				Last_x = LocatorInfo.xVal;
-//		}
-//		
-//		if(LocatorInfo.yVal != Last_y)	//y坐标改变了(这里数据没收到的话，浮点值是完全一样的)
-//		{
-//			Err_y = LocatorInfo.yVal - Last_y;
-//			
-//			if(ValueInRange_f(Err_y, -150.0, 150.0))
-//				Last_y = LocatorInfo.yVal;
-//		}
-//		
-//		PassedLen += sqrt(pow(Err_x, 2) + pow(Err_y, 2));
-//	}
-//	return PassedLen;
-//}
+float GetLengthPassed(void)
+{
+	static float Last_x, Last_y= 0.0f;
+	static float Err_x, Err_y = 0.0f;
+	static float PassedLen = 0.0f;
+	
+	Err_x = LocatorInfo.xVal - Last_x;
+	Err_y = LocatorInfo.yVal - Last_y;
+			
+	if(sqrt(pow(Err_x, 2) + pow(Err_y, 2))>=1.0f)
+	{
+			if(ValueInRange_f(Err_x, -150.0, 150.0))
+				Last_x = LocatorInfo.xVal;
+			
+			if(ValueInRange_f(Err_y, -150.0, 150.0))
+				Last_y = LocatorInfo.yVal;
+	
+		PassedLen += sqrt(pow(Err_x, 2) + pow(Err_y, 2));
+	}
+	
+	return PassedLen;
+}
 
 float GetActLengthPaseed(uint8_t indexNum, PathInfo_t *PathInfo)
 {
 	static float Last_x, Last_y= 0.0f;
-	static float Err_x, Err_y;
+	static float Err_x, Err_y = 0.0f;
 	static float PassedLen = 0.0f;
 	static float PassedLenOnPath = 0.0f;
-		
-	if(LocatorUpdated)
-	{
-		if(LocatorInfo.xVal != Last_x)	//x坐标改变了(这里数据没收到的话，浮点值是完全一样的)
-		{
-			Err_x = LocatorInfo.xVal - Last_x;
+	
+	Err_x = LocatorInfo.xVal - Last_x;
+	Err_y = LocatorInfo.yVal - Last_y;
 			
+	if(sqrt(pow(Err_x, 2) + pow(Err_y, 2))>=1.0f)
+	{
 			if(ValueInRange_f(Err_x, -150.0, 150.0))
 				Last_x = LocatorInfo.xVal;
-		}
+
 		
-		if(LocatorInfo.yVal != Last_y)	//y坐标改变了(这里数据没收到的话，浮点值是完全一样的)
-		{
-			Err_y = LocatorInfo.yVal - Last_y;
-			
 			if(ValueInRange_f(Err_y, -150.0, 150.0))
 				Last_y = LocatorInfo.yVal;
-		}
-		
+	
 		PassedLen += sqrt(pow(Err_x, 2) + pow(Err_y, 2));
 		PassedLenOnPath += PassedLen * arm_cos_f32(ANGLE2RAD(PathInfo[indexNum].tangentDir));
 	}
+	
 	return PassedLenOnPath;
+}
+
+uint8_t JudgeSpeedLessEqual(float speedCompared)
+{
+	PosVel_t actSpeed = GetSpeedWithoutOmega();
+	float speedX = actSpeed.x;
+	float speedY = actSpeed.y;
+	
+	float speed = sqrtf(speedX * speedX + speedY * speedY);
+	
+	if(speed>speedCompared)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
 }

@@ -101,6 +101,7 @@ float GetActLengthPaseed(uint8_t indexNum, PathInfo_t *PathInfo);
 void Locator_SerialIsr(void);
 
 PosVel_t GetSpeedWithoutOmega(void);
+uint8_t JudgeSpeedLessEqual(float speedCompared);
 //void CheckPos1(void);
 //void CheckPos2(PosSend_t pos);
 extern Pos_t ppsReturn;

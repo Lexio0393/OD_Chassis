@@ -31,4 +31,7 @@ void RemoteStatus_Send_Task(void);
 void LostForceStatus_Send_Task(void);
 void AutoStatus_Send_Task(void);
 
+void AutoStatus_Execute_Task(void);
+
+
 #endif

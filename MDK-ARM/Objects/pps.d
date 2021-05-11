@@ -35,6 +35,7 @@
 .\objects\pps.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_dac.h
 .\objects\pps.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_dcmi.h
 .\objects\pps.o: ..\Libraries\STM32F4xx_StdPeriph_Driver\inc\stm32f4xx_fsmc.h
+.\objects\pps.o: ..\User\User_Algorithm\motion.h
 .\objects\pps.o: ..\User\User_Driver\inc\bsp_serial.h
 .\objects\pps.o: ..\User\User_Driver\inc\bsp_systick.h
 .\objects\pps.o: ..\User\User_Algorithm\algorithm.h

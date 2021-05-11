@@ -179,8 +179,6 @@ vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjust
 	Speed_t Decompose = {0.0f};
 	vector_t outputVel = {0.0f};
 	
-	float targetDir, adjustDir = 0.0f;	//³õÖµ´ýÐÞ¸Ä
-	
 	Decompose.x = targetVel * arm_cos_f32(ANGLE2RAD(targetDirection)) + \
 						   adjustVel.module * arm_cos_f32(ANGLE2RAD(adjustVel.direction));
 	
@@ -193,7 +191,101 @@ vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjust
 	return outputVel;
 }
 
-
+uint8_t JudgeStop(float disChange,uint8_t countTime)
+{
+	static uint8_t counter = 0;
+	float disX , disY = 0.0f;
+	static float posXRecord , posYRecord = 0.0f;
+	
+	disX = GetX() - posXRecord;
+	disY = GetY() - posYRecord;
+	
+	if(sqrtf(disX * disX + disY * disY)<=disChange)
+	{
+		counter++;
+	}
+	else
+	{
+		counter = 0;
+	}
+	
+	posXRecord = GetX();
+	posYRecord = GetY();
+	
+	if(counter<=countTime)
+	{
+		return 0;
+	}
+	else
+	{
+		counter = 0;
+		return 1;
+	}
+}
+//uint8_t JudgeStop2(uint8_t shagaiNum,float disChange,uint8_t countTime)
+//{
+//	static uint8_t counter = 0;
+//	float disX , disY = 0.0f;
+//	static float posXRecord , posYRecord = 0.0f;
+//	
+//	disX = GetX() - posXRecord;
+//	disY = GetY() - posYRecord;
+//	
+//	switch(shagaiNum)
+//	{
+//		case FIRSTSHAGAI:
+//		{
+//			if(fabs(disY) < disChange)
+//			{
+//				counter++;
+//			}
+//			else
+//			{
+//				counter = 0;
+//			}
+//			break;
+//		}
+//		case SECONDSHAGAI:
+//		{
+//			if(fabs(disX) < disChange)
+//			{
+//				counter++;
+//			}
+//			else
+//			{
+//				counter = 0;
+//			}
+//			break;
+//		}
+//		case THIRDSHAGAI:
+//		{
+//			if(fabs(disX) < disChange)
+//			{
+//				counter++;
+//			}
+//			else
+//			{
+//				counter = 0;
+//			}
+//			break;
+//		}
+//		default:
+//			break;
+//	}
+//	
+//	posXRecord = GetX();
+//	posYRecord = GetY();
+//	
+//	if(counter<=countTime)
+//	{
+//		return 0;
+//	}
+//	else
+//	{
+//		counter = 0;
+//		return 1;
+//	}
+//}
 
 
 

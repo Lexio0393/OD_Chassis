@@ -95,14 +95,18 @@ void TIM2_IRQHandler(void)	//5ms Tasks
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) 
 	{
 		static uint16_t time_print_tick = 0;
+		
 		TIM_ClearITPendingBit(TIM2, TIM_IT_Update);
 		TIM_ClearFlag(TIM2, TIM_FLAG_Update);
+		
 		time_print_tick++;
+		
 		if (time_print_tick >= 500 && g_Print_FinishFlag) 
 		{
 			time_print_tick = 0;
 			Serial_SendString(Serial6, (uint8_t*)g_Display_usart);
 		}
+		
 		TIM2_5ms_Task();
 	}
 }

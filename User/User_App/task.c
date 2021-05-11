@@ -8,6 +8,13 @@
 #include "pps.h"
 #include "bsp_09s.h"
 
+#include "pathfollow.h"
+
+//1ms
+#define FREQUNCE_TIM_TASK (1)
+
+#define VELL_TEST	0.94f
+
 volatile RemoteStatus_t RemoteStatus = RemoteStatus_FixedCoordinate;
 volatile ChassisStatus_t ChassisStatus = ChassisStatus_LostForce;
 
@@ -30,6 +37,8 @@ float RockerValue_RX = 0.000f, RockerValue_RY = 0.000f;
 float Vel_Vector = 0.000f, Vel_ControlValue = 0.000f;	//Vel_ControlValue = Vel_Vector*Chassis_VelRatio
 
 vector_t finalVel = {0};
+
+
 
 void Config_Task(void)
 {
@@ -279,15 +288,173 @@ void AutoStatus_Send_Task(void)
 
 void AutoStatus_Execute_Task(void)
 {
+	static uint8_t judgeStopFlag = 0, judgeStopDoneFlag = 0;
+	static uint8_t judgeReachFlag = 0, judgeReachDoneFlag = 0;
+	static uint8_t waitStableFlag = 0;
 	
+	switch(gChassis.runnigStatus)
+	{
+		case waitForStart:
+		{
+			if(1)
+			{
+				//插入路径点处理
+				//收到遥控器信息后开始计时，if中为遥控器信号接收函数
+				gChassis.runnigStatus = goTo1stZone;
+			}
+			break;
+		}
+		case goTo1stZone:
+		{
+			
+			/***************
+			 * 路程中动作区
+			 * 补充代码即可
+			 * if
+			 ***************/
+			float dis2FinalX = GetX() - testPath[TEST_PATH_NUM - 1].point.x;
+			float dis2FinalY = GetY() - testPath[TEST_PATH_NUM - 1].point.y;
+			
+			if((sqrtf(dis2FinalX*dis2FinalX + dis2FinalY*dis2FinalY)<50.0f&&JudgeSpeedLessEqual(700.0f)))
+			{
+
+				OutputVel2Wheel_FixedC(100.0f,180.0f,0.0f);    //速度、方向待修改
+				
+				judgeStopFlag = 0;
+				judgeStopDoneFlag = 0;
+				
+				gChassis.runnigStatus = reach1stPos;
+				return;
+			}
+			
+			PathFollowing(VELL_TEST, 2, testPath, testPathInfo);
+			
+			break;
+		}
+		case reach1stPos:
+		{
+			static uint8_t posAchieve = 0, posTimeOut = 0;
+			
+			if(judgeStopDoneFlag == 0)	//说明底盘未停止
+			{
+				OutputVel2Wheel_FixedC(100.0f,180.0f,0.0f);
+			}
+			
+			//通过X坐标判断是否停止，距离浮动3mm，持续实际5ms以上
+			if(JudgeStop(3.0f,5) && judgeStopFlag==0)
+			{
+				judgeStopFlag = 1;
+			}
+			
+			if(judgeStopFlag && judgeStopDoneFlag == 0)
+			{
+				if(fabs(GetY()) > 1500.0f)					//坐标待修改
+				{
+					posAchieve	=	1;
+				}
+				else
+				{
+					posTimeOut++;
+					posTimeOut = posTimeOut > 100 ? 100 : posTimeOut;
+				}
+			}
+			
+			if((posAchieve || posTimeOut > 20) && judgeStopDoneFlag == 0)
+			{		
+				judgeStopDoneFlag = 1;
+			
+//				OutputVel2Wheel(0.0f,getFirstBallPath[GET_FIRST_BAll_PATH_NUM - 1].direction,0.0f);
+//				tryFirstBallPath[0] = (Pose_t){GetX(),GetY(),GetAngle(),0.0f};
+//				OutputVel2Wheel(0.0f,tryFirstBallPath[0].direction,0.0f);
+			}
+			
+//			if(judgeStopDoneFlag == 1 && gRobot.teleCommand.nextFlag == TELENEXT)
+			if(judgeStopDoneFlag == 1 && 1) //收到遥控器下一指令
+			{
+				posAchieve = 0;
+				posTimeOut = 0;
+				judgeStopFlag = 0;
+				judgeStopDoneFlag= 0;
+
+//				gRobot.teleCommand.nextFlag = TELENOCMD;
+
+				gChassis.runnigStatus = waitCommand;
+			}
+			
+			break;
+		}
+		case waitCommand:
+			break;
+		case stop:
+			break;
+		
+		default:
+			break;
+	}
 }
 
-
+//加滤波
+void Task_SpeedCalculate(void)
+{
+	static PosVel_t SpeedFromPos = {0.0f};
+	
+	static float Prev_x, Prev_y= 0.0f;
+	static float Delta_x, Delta_y = 0.0f;
+	
+	Delta_x = LocatorInfo.xVal - Prev_x;
+	Delta_y = LocatorInfo.yVal - Prev_y;
+	
+	if(sqrt(pow(Delta_x, 2) + pow(Delta_x, 2))>=1.0f)
+	{		
+		if(ValueInRange_f(Delta_x, -150.0, 150.0))
+			Prev_x = LocatorInfo.xVal;
+	
+		if(ValueInRange_f(Delta_y, -150.0, 150.0))
+			Prev_y = LocatorInfo.yVal;
+	
+		SpeedFromPos.x = Delta_x * FREQUNCE_TIM_TASK * 1000;
+		SpeedFromPos.y = Delta_y * FREQUNCE_TIM_TASK * 1000;
+	}		
+	
+	ppsReturn.ppsSpeedX = SpeedFromPos.x;
+	ppsReturn.ppsSpeedY = SpeedFromPos.y;
+	
+}
 	
 	
 	
-	
-	
+//void Task_SpeedCalculate(void)
+//{
+//	static PosVel_t SpeedFromPos = {0.0f};
+//	
+//	static float Prev_x, Prev_y= 0.0f;
+//	static float Delta_x, Delta_y = 0.0f;
+//	
+//	if()
+//	{
+//		if(LocatorInfo.xVal != Prev_x)	
+//		{
+//			Delta_x = LocatorInfo.xVal - Prev_x;
+//				
+//			if(ValueInRange_f(Delta_x, -150.0, 150.0))
+//				Prev_x = LocatorInfo.xVal;
+//		}
+//		
+//		if(LocatorInfo.yVal != Prev_y)	
+//		{
+//			Delta_y = LocatorInfo.yVal - Prev_y;
+//				
+//			if(ValueInRange_f(Delta_y, -150.0, 150.0))
+//				Prev_y = LocatorInfo.yVal;
+//		}
+//		
+//		SpeedFromPos.x = Delta_x * FREQUNCE_TIM_TASK * 1000;
+//		SpeedFromPos.y = Delta_y * FREQUNCE_TIM_TASK * 1000;
+//	}
+//	
+//	ppsReturn.ppsSpeedX = SpeedFromPos.x;
+//	ppsReturn.ppsSpeedY = SpeedFromPos.y;
+//}
 	
 	
 	
