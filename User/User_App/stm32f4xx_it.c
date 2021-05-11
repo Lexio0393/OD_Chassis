@@ -90,7 +90,7 @@ void USART3_IRQHandler(void)
   * @param  None
   * @retval None
   */
-void TIM2_IRQHandler(void)	//5ms Tasks
+void TIM2_IRQHandler(void)	//5ms Tasks 1s print
 {
 	if (TIM_GetITStatus(TIM2, TIM_IT_Update) != RESET) 
 	{
@@ -101,7 +101,7 @@ void TIM2_IRQHandler(void)	//5ms Tasks
 		
 		time_print_tick++;
 		
-		if (time_print_tick >= 500 && g_Print_FinishFlag) 
+		if (time_print_tick >= 200 && g_Print_FinishFlag) 
 		{
 			time_print_tick = 0;
 			Serial_SendString(Serial6, (uint8_t*)g_Display_usart);
@@ -118,11 +118,21 @@ void TIM2_IRQHandler(void)	//5ms Tasks
   */
 void TIM5_IRQHandler(void)	//10ms Tasks
 {
+	static uint8_t i = 0;
 	if (TIM_GetITStatus(TIM5, TIM_IT_Update) != RESET) 
 	{
+		i ++;
+		
 		TIM_ClearITPendingBit(TIM5, TIM_IT_Update);
 		TIM_ClearFlag(TIM5, TIM_FLAG_Update);
+		
 		TIM5_10ms_Task();
+		
+		if(!(i % 2))
+		{
+			TIM5_20ms_Task();
+			i = 0;
+		}
 	}
 }
 

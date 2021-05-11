@@ -20,18 +20,20 @@ typedef enum
 void Config_Task(void);
 void TIM2_5ms_Task(void);
 void TIM5_10ms_Task(void);
+void TIM5_20ms_Task(void);
 
-void Task_GetChassisStatus(void);
-
-void Task_RemoteControl(void);
-
-void Task_OutputVel2Wheel(void);
-
+//5ms
+void Task_OutputVel2Wheel(void);		
 void RemoteStatus_Send_Task(void);
 void LostForceStatus_Send_Task(void);
 void AutoStatus_Send_Task(void);
 
+//10ms
+void Task_GetChassisStatus(void);		
+void Task_RemoteControl(void);			
+void Task_AutoVelCrl(void);
+
+//20ms
 void AutoStatus_Execute_Task(void);
-
-
+void Auto_Running(void);
 #endif

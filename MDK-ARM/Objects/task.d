@@ -53,3 +53,4 @@
 .\objects\task.o: ..\User\User_Algorithm\pid.h
 .\objects\task.o: ..\User\User_App\pps.h
 .\objects\task.o: ..\User\User_App\bsp_09s.h
+.\objects\task.o: ..\User\User_Algorithm\pathfollow.h

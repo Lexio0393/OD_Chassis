@@ -6,13 +6,8 @@
 
 #include "pps.h"
 
-#define MAX_PLAN_VEL    (0.0f)
-#define TEST_PATH_NUM   (10)
-#define VELL_TESTPATH		(0.5f)
-
 void PathFollowing(float percent, float Kp, Pose_t *Path, PathInfo_t *PathInfo)
 {
-	//搜索点判断标志位
 	uint8_t indexNum = 0;
 	Pose_t startPoint, endPoint = {0.0f};
 	
@@ -30,72 +25,64 @@ void PathFollowing(float percent, float Kp, Pose_t *Path, PathInfo_t *PathInfo)
 		passedLength = PathInfo[indexNum].trackLength;
 	}
 	
-	/**********************************
-	 * 外部需要if语句判断是否达到终点
-	 * while内死区小于外界if死区
-	 * pathfollow的while跳出后， 外界if做出判断与响应
-   ***********************************
-	 */
-	
-	while(indexNum <= gRobot.totalNum || passedLength < gRobot.totalLength)
+	while(indexNum <= gChassis.debugInfomation.totalNum || passedLength < gChassis.debugInfomation.totalLength)
 	{
 
 		actPoint.point.x = GetX(); 
 		actPoint.point.y = GetY();
 		passedLength = GetActLengthPaseed(indexNum, PathInfo);
 		
-		if(passedLength < gRobot.totalLength && indexNum <= gRobot.totalNum)
+		if(passedLength < gChassis.debugInfomation.totalLength && indexNum <= gChassis.debugInfomation.totalNum)
 		{
-			indexNum = FindSpan(gRobot.totalNum, passedLength, PathInfo);
+			indexNum = FindSpan(gChassis.debugInfomation.totalNum, passedLength, PathInfo);
 			
-			gRobot.virtualPos.startPtr = indexNum;
-			gRobot.virtualPos.endPtr   = indexNum + 1;
-			startPoint = Path[gRobot.virtualPos.startPtr];
-			endPoint   = Path[gRobot.virtualPos.endPtr];
+			gChassis.debugInfomation.virtualPos.startPtr = indexNum;
+			gChassis.debugInfomation.virtualPos.endPtr   = indexNum + 1;
+			startPoint = Path[gChassis.debugInfomation.virtualPos.startPtr];
+			endPoint   = Path[gChassis.debugInfomation.virtualPos.endPtr];
 			
 			searchFlag = 1;
 		}
-		else if(passedLength >= gRobot.totalLength - 10.0f && passedLength <= gRobot.totalLength + 10.0f)
+		else if(passedLength >= gChassis.debugInfomation.totalLength - 10.0f && passedLength <= gChassis.debugInfomation.totalLength + 10.0f)
 		{
-			passedLength = gRobot.totalLength;
-			actPoint = Path[gRobot.totalNum];
+			passedLength = gChassis.debugInfomation.totalLength;
+			actPoint = Path[gChassis.debugInfomation.totalNum];
 			
-			gRobot.outputVel = 0.0f;
-			gRobot.outputDirection = gRobot.outputDirection;
+			gChassis.debugInfomation.outputVel = 0.0f;
+			gChassis.debugInfomation.outputDirection = gChassis.debugInfomation.outputDirection;
 			
 			searchFlag = 0;
 			break;
 		}
-		else if(passedLength >= gRobot.totalLength && searchFlag == 1)  //跑过死区太多就调整，如果到达附近就跳出
+		else if(passedLength >= gChassis.debugInfomation.totalLength && searchFlag == 1)  //跑过死区太多就调整，如果到达附近就跳出
 		{
-			passedLength = gRobot.totalLength;
-			indexNum = gRobot.totalNum;
+			passedLength = gChassis.debugInfomation.totalLength;
+			indexNum = gChassis.debugInfomation.totalNum;
 			
-			gRobot.virtualPos.startPtr = indexNum;
-			gRobot.virtualPos.endPtr   = indexNum;
-			startPoint = Path[gRobot.virtualPos.startPtr];
-			endPoint   = Path[gRobot.virtualPos.endPtr];
+			gChassis.debugInfomation.virtualPos.startPtr = indexNum;
+			gChassis.debugInfomation.virtualPos.endPtr   = indexNum;
+			startPoint = Path[gChassis.debugInfomation.virtualPos.startPtr];
+			endPoint   = Path[gChassis.debugInfomation.virtualPos.endPtr];
 		}
 
 		if(searchFlag)
 		{
-			gRobot.virtualPos = VectorLinerInterpolation(startPoint, endPoint, percent);
-			adjustVel = CalcSpeedFromAct2Vir(actPoint, gRobot.virtualPos, Kp);
+			gChassis.debugInfomation.virtualPos = VectorLinerInterpolation(startPoint, endPoint, percent);
+			adjustVel = CalcSpeedFromAct2Vir(actPoint, gChassis.debugInfomation.virtualPos, Kp);
 					
-			finalVel = VectorSynthesis(gRobot.virtualPos.vel, gRobot.virtualPos.direction, adjustVel);
+			finalVel = VectorSynthesis(gChassis.debugInfomation.virtualPos.vel, gChassis.debugInfomation.virtualPos.direction, adjustVel);
 	
 			if(finalVel.module > 0.01f)
 			{
-				gRobot.outputVel = finalVel.module;
-				gRobot.outputDirection = finalVel.direction;
+				gChassis.debugInfomation.outputVel = finalVel.module;
+				gChassis.debugInfomation.outputDirection = finalVel.direction;
 			}
 			else
 			{
-				gRobot.outputVel = finalVel.module;
-				gRobot.outputDirection = gRobot.outputDirection;
+				gChassis.debugInfomation.outputVel = finalVel.module;
+				gChassis.debugInfomation.outputDirection = gChassis.debugInfomation.outputDirection;
 			}
-	
-			OutputVel2Wheel_FixedC(gRobot.outputVel, gRobot.outputDirection, GetWZ());
+//			OutputVel2Wheel_FixedC(gChassis.debugInfomation.outputVel, gChassis.debugInfomation.outputDirection, GetWZ());
 		}
 	}	
 }
@@ -126,8 +113,6 @@ uint8_t FindSpan(uint8_t totalNum, float PassedLen, PathInfo_t *PathInfo)
 	
 	return (uint8_t) mid; 
 }
-	
-//点斜式代替矢量大小及方向
 
 PointU_t VectorLinerInterpolation(Pose_t startPos, Pose_t endPos, float percent)
 {
@@ -189,6 +174,24 @@ vector_t VectorSynthesis(float targetVel, float targetDirection, vector_t adjust
 	outputVel.direction = RAD2ANGLE(atan2f(Decompose.y, Decompose.x));
 	
 	return outputVel;
+}
+
+uint8_t JudgeSpeedLessEqual(float speedCompared)
+{
+	PosVel_t actSpeed = GetSpeedWithoutOmega();
+	float speedX = actSpeed.x;
+	float speedY = actSpeed.y;
+	
+	float speed = sqrtf(speedX * speedX + speedY * speedY);
+	
+	if(speed > speedCompared)
+	{
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
 }
 
 uint8_t JudgeStop(float disChange,uint8_t countTime)
@@ -287,6 +290,30 @@ uint8_t JudgeStop(float disChange,uint8_t countTime)
 //	}
 //}
 
+//void VelControl(robotVel_t robotVel)
+//{
+//	
+//}
 
+//void Chassis_SetVelocityPIDRatio(PID_Increment_t Chassis_Struct, float Kp, float Ki, float Kd)
+//{
+//	Chassis_Struct.Kp = Kp;
+//	Chassis_Struct.Ki = Ki;
+//	Chassis_Struct.Kd = Kd;
+//	Chassis_Struct.MaxOutput = 10000;
+//	
+//	Chassis_Struct.Deadband = 50.0f;
+//	Chassis_Struct.MaxIncrease = 600.0f;
+//	Chassis_Struct.MaxInt = 3000.0f;
+//}
+
+
+
+//void Chassis_SetVelocity(PID_Increment_t Chassis_Struct, int16_t Velocity)
+//{
+//	
+//}
+
+//void VelCrl(PID_Increment_t Chassis_Struct, int32_t vel);
 
 

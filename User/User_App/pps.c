@@ -293,21 +293,3 @@ float GetActLengthPaseed(uint8_t indexNum, PathInfo_t *PathInfo)
 	
 	return PassedLenOnPath;
 }
-
-uint8_t JudgeSpeedLessEqual(float speedCompared)
-{
-	PosVel_t actSpeed = GetSpeedWithoutOmega();
-	float speedX = actSpeed.x;
-	float speedY = actSpeed.y;
-	
-	float speed = sqrtf(speedX * speedX + speedY * speedY);
-	
-	if(speed>speedCompared)
-	{
-		return 0;
-	}
-	else
-	{
-		return 1;
-	}
-}

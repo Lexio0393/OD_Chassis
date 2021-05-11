@@ -15,21 +15,6 @@ typedef struct
 	float omega;
 }ChassisVel_t;
 
-//typedef struct
-//{
-//	float velTarget;
-//	float velAct;
-//}wheelVel_t;
-
-////The velocity of each wheel (save the inverse kinematics solutions)
-//typedef struct
-//{
-//	wheelVel_t rightFront;
-//	wheelVel_t leftFront;
-//	wheelVel_t leftRear;
-//	wheelVel_t rightRear;
-//}wheelState_t;
-
 typedef struct
 {
 	float rf;
@@ -37,6 +22,80 @@ typedef struct
 	float lr;
 	float rr;
 }wheel_t;
+
+//机器人速度结构体
+typedef struct
+{
+	//速度大小
+	float vel;
+	//速度方向
+	float direction;
+	//角速度大小
+	float omega;
+}robotVel_t;
+
+typedef struct gRobot_t
+{
+	//虚拟位置点坐标
+	PointU_t virtualPos;
+	
+	//已经走过的路程
+	float passedLength;
+	//轨迹的总路程
+	float totalLength;
+	//当前轨迹总路径点数
+	uint8_t totalNum;
+	
+	//轨迹跟随速度调节量
+	robotVel_t adjustVel;
+	//速度环输出的速度大小
+	float outputVel;
+	//速度环输出的速度方向
+	float outputDirection;
+
+//  速度记录量，速度环进行新输出时，上一次的速度大小
+	//原始速度大小
+	float originVel;
+	//原始速度方向
+	float originVelDir;
+	//角速度大小（度/秒）
+//	float omega;	
+//	//和速度大小
+//	float sumVel;
+//	//和速度方向
+//	float sumVelDir;
+}debugInfo_t;
+
+typedef enum
+{
+	waitForStart,
+	goTo1stZone,
+	reach1stPos,
+	waitCommand,
+	stop,
+}autoStatus_t;
+
+//手柄接受指令
+typedef struct
+{
+	uint8_t nextFlag;
+	uint8_t stopFlag;
+}teleCmd_t;
+
+//全局变量
+typedef struct
+{
+	ChassisVel_t chassisVel;
+	Speed_t Speed_C;
+	wheel_t wheelState;
+	
+	teleCmd_t 	teleCommand;
+	debugInfo_t debugInfomation;
+	autoStatus_t runnigStatus;
+}gChassis_t;
+
+#define TELENOCMD				0
+#define TELENEXT				1
 
 /* 底盘基本参数 */
 #define WHEEL_DIAMETER  (152.4f)		//轮子直径（单位：mm）
@@ -82,26 +141,6 @@ void SendCmd2Driver(float rfVel, float lfVel, float lrVel, float rrVel);
 //车轮线速度与电机转速转换函数
 float RotateVel2Vel(int rpm);
 int Vel2RotateVel(float vel);
-
-typedef enum
-{
-	waitForStart,
-	goTo1stZone,
-	reach1stPos,
-	waitCommand,
-	stop,
-}autoStatus_t;
-
-//全局变量
-typedef struct
-{
-	ChassisVel_t chassisVel;
-	Speed_t Speed_C;
-	wheel_t wheelState;
-	
-	autoStatus_t runnigStatus;
-}gChassis_t;
-
 
 extern gChassis_t gChassis;
 #endif

@@ -95,13 +95,11 @@ float GetWZ(void);					//返回定位系统的Z轴角速度值
 void RecordContiniousAngle(float value);
 float GetContiniousAngle(void);
 
-
 float GetLengthPassed(void);
 float GetActLengthPaseed(uint8_t indexNum, PathInfo_t *PathInfo);
-void Locator_SerialIsr(void);
-
 PosVel_t GetSpeedWithoutOmega(void);
-uint8_t JudgeSpeedLessEqual(float speedCompared);
+
+void Locator_SerialIsr(void);
 //void CheckPos1(void);
 //void CheckPos2(PosSend_t pos);
 extern Pos_t ppsReturn;
